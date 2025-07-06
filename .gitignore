@@ -1,2 +1,9 @@
-pihole/etc-pihole/
+# Ignore docker .env file
 docker-compose/.env
+
+# Ignore services data dirs
+docker-compose/services/**/data/*
+docker-compose/services/tmp/*
+
+# Leave data dir
+!docker-compose/services/**/data/.gitkeep

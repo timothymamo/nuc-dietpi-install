@@ -2,7 +2,7 @@
 
 # Set varibales"
 USER_SCRIPT="tim"
-HTTPS_REPO="https://github.com/timothymamo/raspi-dietpi-install.git"
+HTTPS_REPO="https://github.com/timothymamo/nuc-dietpi-install.git"
 
 HOME_USER="/home/${USER_SCRIPT}"
 
@@ -17,26 +17,55 @@ usermod -aG sudo ${USER_SCRIPT}
 passwd -d ${USER_SCRIPT}
 
 # Copy the .ssh directory
-echo "Copying SSH keys"
+echo "Copying SSH keys to user's home"
 cp -r /root/.ssh/ ${HOME_USER}
 
-# install build-essentials
-echo "Installing Build Essentials"
-apt-get install build-essential -y
+# Install Packages
+echo "Installing Packages"
+apt update && apt upgrade
+apt -y install \
+  build-essential \
+  vim \
+  zsh \
+  zsh-syntax-highlighting \
+  zsh-autosuggestions \
+  fonts-firacode
+
+# Install starship
+curl -sS https://starship.rs/install.sh | sh -s -- --yes --bin-dir /usr/bin
 
 # Disable root ssh login
 echo "Disabling Root login"
 sed -i '/#PermitRootLogin prohibit-password/c\PermitRootLogin no' /etc/ssh/sshd_config
 
+echo "# NAS
+//192.168.1.120/data/ /home/tim/nas cifs _netdev,credentials=/home/tim/.smbcredentials,auto,vers=3.0,uid=1000,gid=1000 0 1
+//192.168.1.120/NetBackup/ /mnt/backup/ cifs _netdev,credentials=/home/tim/.smbcredentials,auto,vers=3.0,uid=1000,gid=1000 0 1" >> /etc/fstab
+
+# Creating rsync backup daily cron of config dir to NAS
+echo "#\!/bin/zsh
+
+HOME_USER=/home/tim
+SRC=\${HOME_USER}/config
+DEST=/mnt/backup/nuc/config
+
+if [ ! -d \${DEST} ];then
+	echo \"\${DEST} drive does not exist. Please mount the Drive \${DEST} before continuing\"
+	exit -1
+fi
+
+rsync --rsh=\"ssh -i \${HOME_USER}/.ssh/id_ed25519\" --info=skip0 --archive --recursive --human-readable --no-links --delete \${SRC} \${DEST}" > /etc/cron.daily/rsync-nas
+chmod +x /etc/cron.daily/rsync-nas
+
 # Create a git directory and clone this repo
-echo "Clone repo into ${HOME_USER}/git/raspi-dietpi-install/"
-mkdir -p ${HOME_USER}/git/raspi-dietpi-install/
-git clone ${HTTPS_REPO} ${HOME_USER}/git/raspi-dietpi-install/
+echo "Clone repo into ${HOME_USER}/git/nuc-dietpi-install/"
+mkdir -p ${HOME_USER}/git/nuc-dietpi-install/
+git clone ${HTTPS_REPO} ${HOME_USER}/git/nuc-dietpi-install/
 
 # Create symlinks for all files
 echo "Symlinking repo into ${HOME_USER}"
-ln -s ${HOME_USER}/git/raspi-dietpi-install/* ${HOME_USER}
-ln -s ${HOME_USER}/git/raspi-dietpi-install/.* ${HOME_USER}
+ln -s ${HOME_USER}/git/nuc-dietpi-install/* ${HOME_USER}
+ln -s ${HOME_USER}/git/nuc-dietpi-install/.* ${HOME_USER}
 
 # Remove .git directory so any changes within ${HOME} don't get pushed to the repo
 echo "Symlinking .git directory within ${HOME_USER}"

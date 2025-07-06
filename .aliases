@@ -9,9 +9,8 @@ alias gst='git status'
 
 # Docker
 alias dps='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Names}}"'
-alias dcpll='cd ${HOME}/docker-compose/; docker-compose pull'
-alias dcup='cd ${HOME}/docker-compose/; docker-compose up -d'
-alias dcrs='cd ${HOME}/docker-compose/; docker-compose restart'
+alias dcup='cd ${HOME}/docker-compose/; git pull; docker compose up -d'
+alias dcrs='cd ${HOME}/docker-compose/; docker compose restart'
 alias banner='/boot/dietpi/func/dietpi-banner 1'
 
 # SSH
@@ -20,6 +19,14 @@ alias ssh_asus="ssh -i ~/.ssh/id_rsa The_Force@router.asus.com"
 
 # Misc
 alias ls='ls --color=auto'
+
+# NUC specific aliases
+alias hacheck='docker exec homeassistant bash -c "hass --script check_config -c /config/"'
+alias drh='docker restart homeassistant'
+alias dsh='docker start homeassistant'
+alias dph='docker stop homeassistant'
+alias cdha='cd ${HOME}/config/homeassistant'
+alias glha='cdha; git pull; hacheck'
 
 # DietPi aliases
 alias 1337='echo "Indeed, you are =)"'

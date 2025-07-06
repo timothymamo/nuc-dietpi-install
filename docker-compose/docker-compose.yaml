@@ -1,45 +1,391 @@
 services:
 
-  pihole:
-    container_name: pihole
-    image: pihole/pihole:2025.06.1
-    user: "0"
-    ports:
-      - 53:53/tcp
-      - 53:53/udp
-      - 67:67/udp
-      - 80:80/tcp
-      - 443:443/tcp
-    environment:
-      - TZ=Netherlands/Amsterdam
-      - FTLCONF_webserver_api_password=${PIHOLE_PASSWORD}
-      - VIRTUAL_PORT=80
-    volumes:
-      - /home/tim/pihole/etc-pihole/:/etc/pihole/
-      - /home/tim/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/
+  web:
+    image: lscr.io/linuxserver/swag:4.1.1
+    container_name: web
+    hostname: web
     restart: unless-stopped
-
-  fail2ban:
-    image: crazymax/fail2ban:1.1.0
-    container_name: fail2ban
     cap_add:
       - NET_ADMIN
-      - NET_RAW
-    network_mode: host
     environment:
-      - TZ=Netherlands/Amsterdam
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+      - URL=timsdomain.duckdns.org
+      - VALIDATION=duckdns
+      - SUBDOMAINS=wildcard
+      - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
+      - DOCKER_MODS=linuxserver/mods:swag-dashboard|linuxserver/mods:swag-dbip
     volumes:
-      - /home/tim/fail2ban/config:/data
-      - /var/log:/var/log:ro
-    restart: unless-stopped
+      - /home/tim/config/swag:/config
+    ports:
+      - 443:443
+      - 80:80
+      - 81:81
+    networks:
+      - home-web
 
-  nebula-sync:
-    image: ghcr.io/lovelaze/nebula-sync:v0.11.0
-    container_name: nebula-sync
-    environment:
-      - PRIMARY=${PRIMARY}
-      - REPLICAS=${REPLICAS}
-      - FULL_SYNC=true
-      - RUN_GRAVITY=true
-      - CRON=0 * * * *
+  authelia:
+    container_name: 'authelia'
+    image: ghcr.io/authelia/authelia:4.39.4
     restart: unless-stopped
+    user: "1000:1000"
+    depends_on:
+      - web
+    expose:
+      - 9091
+    volumes:
+      - /home/tim/config/authelia:/config
+    environment:
+      TZ: 'Europe/Amsterdam'
+    networks:
+      - home-web
+
+  gluetun:
+    image: ghcr.io/qdm12/gluetun:v3.40.0
+    container_name: gluetun
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 8888:8888/tcp # HTTP proxy
+      - 8388:8388/tcp # Shadowsocks
+      - 8388:8388/udp # Shadowsocks
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+      - 8090:8090
+      - 6789:6789
+      - 6881:6881
+      - 6881:6881/udp
+      - 8480:8080
+    volumes:
+      - /home/tim/config/gluetun:/gluetun
+    environment:
+      - VPN_SERVICE_PROVIDER=nordvpn
+      - VPN_TYPE=wireguard
+      - SERVER_COUNTRIES=Netherlands
+      - SERVER_CITIES=Amsterdam
+      # Wireguard:
+      - WIREGUARD_PRIVATE_KEY=${NORDVPN_TOKEN}
+      - TZ=Europe/Amsterdam
+      # Server list updater
+      # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
+      - UPDATER_PERIOD=24h
+    networks:
+      - home-web
+
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:2025.6.3
+    container_name: homeassistant
+    hostname: homeassistant 
+    depends_on:
+      - web
+      - transmission
+      - influxdb
+      - grafana
+      - telegraf
+    healthcheck:
+      test: ["CMD", "curl", "-s", "http://localhost:8123"]
+      interval: 5s
+      timeout: 3s
+      retries: 100
+    restart: unless-stopped
+    privileged: true
+    environment:
+      - TZ=Europe/Amsterdam
+    devices:
+      - /dev/ttyAMA0
+      - /dev/ttyACM0
+    volumes:
+      - /home/tim/config/homeassistant:/config
+    network_mode: host
+
+  influxdb:
+    image: influxdb:2.7.12
+    container_name: influxdb 
+    restart: unless-stopped
+    hostname: influxdb
+    depends_on:
+      - web
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USER}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_USER_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=home
+      - DOCKER_INFLUXDB_INIT_BUCKET=home-assistant
+    volumes:
+      - /home/tim/config/influxdb2:/var/lib/influxdb2
+    ports:
+      - 8086:8086
+
+  telegraf:
+    image: telegraf:1.35.1 
+    container_name: telegraf
+    hostname: telegraf
+    user: telegraf:998
+    privileged: true
+    depends_on:
+      - web
+      - influxdb
+    restart: unless-stopped
+    links:
+      - influxdb
+    environment:
+      - HOST_PROC=/hostfs/proc
+      - HOST_MOUNT_PREFIX=/hostfs
+      - TELEGRAF_INFLUXDB_TOKEN=${TELEGRAF_INFLUXDB_TOKEN}
+      - TELEGRAF_INFLUXDB_ORG=${TELEGRAF_INFLUXDB_ORG}
+      - TELEGRAF_INFLUXDB_BUCKET=${TELEGRAF_INFLUXDB_BUCKET}
+    volumes:
+      - /:/hostfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./services/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+
+  grafana:
+    image: grafana/grafana:12.0.2
+    container_name: grafana
+    hostname: grafana
+    user: 0:0
+    depends_on:
+      - web
+      - telegraf
+    restart: unless-stopped
+    volumes:
+      - /home/tim/config/grafana:/var/lib/grafana
+    ports:
+      - 3000:3000
+    networks:
+      - home-web
+
+  transmission:
+    image: linuxserver/transmission:4.0.6
+    container_name: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+      - USER=${TRANSMISSION_USERNAME}
+      - PASS=${TRANSMISSION_PASSWORD}
+    volumes:
+      - /home/tim/config/transmission:/config
+      - /home/tim/nas/data/torrents:/data/torrents
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+
+  nzbget:
+    image: lscr.io/linuxserver/nzbget:24.8.20250509
+    container_name: nzbget
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+      - NZBGET_USER=${TRANSMISSION_USERNAME}
+      - NZBGET_PASS=${TRANSMISSION_PASSWORD}
+    volumes:
+      - /home/tim/config/nzbget:/config
+      - /home/tim/nas/data/usenet:/data/usenet
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:4.5.1
+    container_name: sabnzbd
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /home/tim/config/sabnzbd:/config
+      - /home/tim/nas/data/usenet:/data/usenet
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+  
+  sonarr:
+    image: linuxserver/sonarr:4.0.15
+    container_name: sonarr
+    hostname: sonarr
+    depends_on:
+      - web
+      - prowlarr
+      - transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /home/tim/config/sonarr:/config
+      - /home/tim/nas/data:/data
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+    networks:
+      - home-web
+  
+  radarr:
+    image: linuxserver/radarr:5.27.1-nightly
+    container_name: radarr
+    hostname: radarr
+    depends_on:
+      - web
+      - prowlarr
+      - transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /home/tim/config/radarr:/config
+      - /home/tim/nas/data:/data
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+    networks:
+      - home-web
+
+  readarr:
+    image: lscr.io/linuxserver/readarr:0.4.19-nightly
+    container_name: readarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /home/tim/config/readarr:/config
+      - /home/tim/nas/data:/data
+    ports:
+      - 8787:8787
+    restart: unless-stopped
+    networks:
+      - home-web
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:2.12.4.4658-ls45
+    container_name: lidarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /home/tim/config/lidarr:/config
+      - /home/tim/nas/data:/data
+    ports:
+      - 8686:8686
+    restart: unless-stopped
+    networks:
+      - home-web
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:2.0.1-nightly
+    container_name: prowlarr
+    hostname: prowlarr
+    depends_on:
+      - web
+      - flaresolverr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /home/tim/config/prowlarr:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+    networks:
+      - home-web
+
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:2.25.1
+    container_name: audiobookshelf
+    ports:
+      - 13378:13378
+    volumes:
+      - /home/tim/nas/data/media/audio/audiobooks:/audiobooks
+      - /home/tim/nas/data/media/audio/podcasts:/podcasts
+      - /home/tim/config/audiobookshelf:/config
+      - /home/tim/nas/data/media/audiobookshelf/metadata:/metadata
+    environment:
+      - TZ=Europe/Amsterdam
+      - PORT=13378
+    restart: unless-stopped
+    networks:
+      - home-web
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:v3.3.25
+    container_name: flaresolverr
+    hostname: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Europe/Amsterdam
+    ports:
+      - "${PORT:-8191}:8191"
+    restart: unless-stopped
+    networks:
+      - home-web
+
+  plex:
+    image: linuxserver/plex:1.41.8
+    container_name: plex
+    hostname: plex
+    depends_on:
+      - web
+      - sonarr
+      - radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VERSION=docker
+    volumes:
+      - /home/tim/config/plex:/config
+      - /home/tim/nas/data/media:/data/media
+      - /tmp/transcoding:/tmp/transcoding
+    restart: unless-stopped
+    network_mode: host
+
+  overseerr:
+    image: linuxserver/overseerr:1.34.0
+    container_name: overseerr
+    environment:
+      - TZ=Europe/Amsterdam
+      - PORT=5055
+    ports:
+      - 5055:5055
+    volumes:
+      - /home/tim/config/overseerr:/app/config
+    restart: unless-stopped
+    networks:
+      - home-web
+
+  speedtest-tracker:
+    image: linuxserver/speedtest-tracker:1.6.1
+    container_name: speedtest-tracker
+    ports:
+      - 8080:80
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+      - MAIL_HOST=${SPEEDTEST_MAIL_HOST}
+      - MAIL_PORT=${SPEEDTEST_MAIL_PORT}
+      - MAIL_USERNAME=${SPEEDTEST_MAIL_USERNAME}
+      - MAIL_PASSWORD=${SPEEDTEST_MAIL_PASSWORD}
+      - MAIL_ENCRYPTION=${SPEEDTEST_MAIL_ENCRYPTION}
+      - MAIL_FROM_ADDRESS=${SPEEDTEST_MAIL_FROM_ADDRESS}
+      - APP_KEY=${SPEEDTEST_APP_KEY}
+      - DB_CONNECTION=sqlite
+      - SPEEDTEST_SCHEDULE="0 */6 * * *"
+      - SPEEDTEST_SERVERS="49730,61186"
+      - PRUNE_RESULTS_OLDER_THAN=120
+    volumes:
+      - /home/tim/config/speedtest:/config
+    restart: unless-stopped
+    networks:
+      - home-web
+
+networks:
+  home-web:

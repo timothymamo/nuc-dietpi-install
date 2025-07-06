@@ -31,15 +31,14 @@ source /home/linuxbrew/.linuxbrew/opt/zsh-autosuggestions/share/zsh-autosuggesti
 source ~/.aliases
 
 FPATH="$HOME/.docker/completions:$FPATH"
-autoload -Uz compinit
-compinit
-
 autoload -Uz compinit && compinit
 
 autoload -U up-line-or-beginning-search
 autoload -U down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
+bindkey "${key[Up]}" up-line-or-beginning-search # Up
+bindkey "${key[Down]}" down-line-or-beginning-search # Down
 
 zstyle ':completion:*' menu select
 
