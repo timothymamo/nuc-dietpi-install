@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Set varibales"
+# Set variables"
 USER_SCRIPT="tim"
 HTTPS_REPO="https://github.com/timothymamo/nuc-dietpi-install.git"
 
@@ -113,3 +113,5 @@ sed -i '/^ExecStart=/usr/bin/dockerd.*/i ExecStartPre=/bin/sleep 30' /lib/system
 
 echo "Ensuring ownership of ${HOME_USER} is set to ${USER_SCRIPT}"
 chown -R ${USER_SCRIPT}:${USER_SCRIPT} ${HOME_USER}
+
+echo "All done! Change user by running su - ${USER_SCRIPT}, modify the docker-compose/.env file and then run the script user-install-script.sh."

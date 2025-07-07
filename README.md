@@ -14,17 +14,17 @@ Place the microSD card in the RaspberryPi and plug it in. Wait for the system to
 
 # Setup DietPi
 
-ssh into the system as root and run the `root-install-script.sh` by running the following command:
+ssh into the system as root and run the `root-install-script.sh` script by running the following command:
 ```bash
 wget -O - https://raw.githubusercontent.com/timothymamo/nuc-dietpi-install/refs/heads/main/root-install-script.sh | bash
 ```
 
-Log out and log back in as `tim` and modify the `docker-compose/.env` file.
+Once the script is done you will get a notification to change user by running `su - <user>` and modify the `docker-compose/.env` file.
 ```bash
 nano ${HOME}/docker-compose/.env
 ```
 
-Run the `user-install-script.sh` script:
+Once modified run the `user-install-script.sh` script:
 ```bash
 ./user-install-script.sh
 ```
