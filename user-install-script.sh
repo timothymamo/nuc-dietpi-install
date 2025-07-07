@@ -13,9 +13,6 @@ echo "host github.com
 mkdir -p ${HOME}/.docker/completions
 docker completion zsh > ${HOME}/.docker/completions/_docker
 
-# Copy the config directory from backup
-cp -R /mnt/backup/nuc/config ${HOME}/config
-
 # Set zsh as the default shell for the ${USER}
 echo "Settign zsh as default shell for ${USER}"
 command -v zsh | sudo tee -a /etc/shells
@@ -33,6 +30,7 @@ pushd ${HOME}/docker-compose
 docker compose up --detach --wait --wait-timeout 60
 
 # Allowing containers in different networks to talk to each other
+echo "Finding docker compose networks and modifying iptables to allow containers in different networks to talk to each other"
 for DC_NET_IDS in DC_NET_1 DC_NET_2; do
     read -r "${DC_NET_IDS}"
 done <<EOF

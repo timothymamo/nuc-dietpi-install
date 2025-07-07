@@ -12,8 +12,6 @@ UUID=0db17362-8ffb-45c7-ba85-b5213dbce592 /boot           ext2    defaults      
 UUID=BEFC-A34B  /boot/efi       vfat    umask=0077      0       1
 /dev/mapper/intel--nuc--vg-swap_1 none            swap    sw              0       0
 tmpfs    /tmp    tmpfs    defaults,noatime,nosuid,nodev,noexec,size=64G,mode=1777    0    0
-# External Hard Drive
-# /dev/sda2 /home/tim/ext-hd ext4 defaults,noatime 0 2
 # NAS
 //192.168.1.120/data/ /home/tim/nas cifs _netdev,credentials=/home/tim/.smbcredentials,auto,vers=3.0,uid=1000,gid=1000 0 1
 //192.168.1.120/NetBackup/ /mnt/backup/ cifs _netdev,credentials=/home/tim/.smbcredentials,auto,vers=3.0,uid=1000,gid=1000 0 1

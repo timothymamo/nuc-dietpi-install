@@ -1,6 +1,0 @@
-brew 'vim'
-brew 'zsh'
-brew 'zsh-autocomplete'
-brew 'zsh-syntax-highlighting'
-brew 'zsh-autosuggestions'
-brew 'starship'

@@ -16,8 +16,9 @@ adduser --disabled-password --gecos "" ${USER_SCRIPT}
 usermod -aG sudo ${USER_SCRIPT}
 passwd -d ${USER_SCRIPT}
 
-# Copy the .ssh directory
+# Add public key and copy the .ssh directory
 echo "Copying SSH keys to user's home"
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAIUVrLYuMImaXmOkU3picEHpph3dfIg2YQQOiPvFMaF tmamo@macbookairm3" > /root/.ssh/authorized_keys
 cp -r /root/.ssh/ ${HOME_USER}
 
 # Install Packages
@@ -36,13 +37,26 @@ curl -sS https://starship.rs/install.sh | sh -s -- --yes --bin-dir /usr/bin
 
 # Disable root ssh login
 echo "Disabling Root login"
-sed -i '/#PermitRootLogin prohibit-password/c\PermitRootLogin no' /etc/ssh/sshd_config
+sed -i '/.*PermitRootLogin.*/c\PermitRootLogin no' /etc/ssh/sshd_config
 
+# Add NAS to fstab to mount on boot
+echo "Adding NAS to fstab file to mount on boot"
 echo "# NAS
-//192.168.1.120/data/ /home/tim/nas cifs _netdev,credentials=/home/tim/.smbcredentials,auto,vers=3.0,uid=1000,gid=1000 0 1
-//192.168.1.120/NetBackup/ /mnt/backup/ cifs _netdev,credentials=/home/tim/.smbcredentials,auto,vers=3.0,uid=1000,gid=1000 0 1" >> /etc/fstab
+//192.168.1.120/data/ ${HOME_USER}/nas cifs _netdev,credentials=${HOME_USER}/.smbcredentials,auto,vers=3.0,uid=1000,gid=1000 0 1
+//192.168.1.120/NetBackup/ /mnt/backup/ cifs _netdev,credentials=${HOME_USER}/.smbcredentials,auto,vers=3.0,uid=1000,gid=1000 0 1" >> /etc/fstab
+
+# Mount NAS drives
+echo "Mounting NAS drives and verifying"
+mount ${HOME_USER}/nas
+mount /mnt/backup
+findmnt --verify
+
+# Copy the config directory from backup
+echo "Copying the config dir to the user home ${HOME_USER}"
+cp -R /mnt/backup/nuc/config ${HOME_USER}/config
 
 # Creating rsync backup daily cron of config dir to NAS
+echo "Creating a daily backup of the config directory to the NAS"
 echo "#\!/bin/zsh
 
 HOME_USER=/home/tim
@@ -58,7 +72,7 @@ rsync --rsh=\"ssh -i \${HOME_USER}/.ssh/id_ed25519\" --info=skip0 --archive --re
 chmod +x /etc/cron.daily/rsync-nas
 
 # Create a git directory and clone this repo
-echo "Clone repo into ${HOME_USER}/git/nuc-dietpi-install/"
+echo "Cloning repo into ${HOME_USER}/git/nuc-dietpi-install/"
 mkdir -p ${HOME_USER}/git/nuc-dietpi-install/
 git clone ${HTTPS_REPO} ${HOME_USER}/git/nuc-dietpi-install/
 
@@ -68,7 +82,7 @@ ln -s ${HOME_USER}/git/nuc-dietpi-install/* ${HOME_USER}
 ln -s ${HOME_USER}/git/nuc-dietpi-install/.* ${HOME_USER}
 
 # Remove .git directory so any changes within ${HOME} don't get pushed to the repo
-echo "Symlinking .git directory within ${HOME_USER}"
+echo "Removing symlink for .git directory within ${HOME_USER}"
 rm -rf ${HOME_USER}/.git
 
 # Create a ${HOME}/docker-compose/.env file from ${HOME}/docker-compose/.env-sample
@@ -93,6 +107,9 @@ systemctl restart sshd
 echo "Setting up Docker user and permissions"
 usermod -aG docker ${USER_SCRIPT}
 systemctl enable docker
+
+# Set docker to start 30s after boot to allow volumes to mount
+sed -i '/^ExecStart=/usr/bin/dockerd.*/i ExecStartPre=/bin/sleep 30' /lib/systemd/system/docker.service
 
 echo "Ensuring ownership of ${HOME_USER} is set to ${USER_SCRIPT}"
 chown -R ${USER_SCRIPT}:${USER_SCRIPT} ${HOME_USER}
