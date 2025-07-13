@@ -1,4 +1,4 @@
-export PATH=/usr/bin:/boot/dietpi:/bin:/usr/sbin:/sbin:/home/linuxbrew/.linuxbrew/bin:$PATH
+export PATH=/usr/bin:/boot/dietpi:/bin:/usr/sbin:/sbin:$PATH
 
 #set history size
 export HISTSIZE=1000000
@@ -25,8 +25,8 @@ eval "$(starship init zsh)"
 
 export EDITOR="vim"
 
-source /home/linuxbrew/.linuxbrew/opt/zsh-syntax-highlighting/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source /home/linuxbrew/.linuxbrew/opt/zsh-autosuggestions/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 source ~/.aliases
 

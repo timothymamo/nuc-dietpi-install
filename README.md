@@ -24,7 +24,7 @@ wget -O - https://raw.githubusercontent.com/timothymamo/nuc-dietpi-install/refs/
 
 Once the script is done you will get a notification to change user by running `su - <user>` and modify the `docker-compose/.env` file.
 ```bash
-nano ${HOME}/docker-compose/.env
+vim ${HOME}/docker-compose/.env
 ```
 
 Once modified run the `user-install-script.sh` script:
@@ -36,3 +36,11 @@ The script will ask you to set a new password for the user as well as asking you
 Once the script finishes the system will reboot.
 
 Re-login, now you should be running `zsh` with `starship` for your prompt, and check that everything is running as it should be by running the alias command `dps`.
+
+You will have to set the appropriate username and password for the `${HOME}/.smbcredentials` file and reboot the system.
+
+
+------
+Notes
+Recommended packages:
+  fakeroot gnupg | sq | sqop | pgpainless-cli libalgorithm-merge-perl manpages manpages-dev libc-devtools libfile-fcntllock-perl xxd libpcre3
