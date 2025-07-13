@@ -17,7 +17,7 @@ Once the setup is follow the next steps.
 
 # Setup DietPi
 
-ssh into the system as root and run the `root-install-script.sh` script by running the following command:
+ssh into the system as root using the password you set and run the `root-install-script.sh` script by running the following command:
 ```bash
 wget -O - https://raw.githubusercontent.com/timothymamo/nuc-dietpi-install/refs/heads/main/root-install-script.sh | bash
 ```
