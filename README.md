@@ -4,6 +4,7 @@ Install DietPI as described [here](https://dietpi.com/docs/install/#how-to-insta
 
 During the installation set the following options:
 ```yaml
+Passowrd: <passowrd>
 Hostname: DietPi<Name>
 Timezone: Europe/Amsterdam
 SSH server: OpenSSH
