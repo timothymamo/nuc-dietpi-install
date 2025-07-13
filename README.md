@@ -2,6 +2,8 @@
 
 Install DietPI as described [here](https://dietpi.com/docs/install/#how-to-install-dietpi-native-pc).
 
+You will have to connect to the internet and setup WiFi if you haven't got the ethernet cable connected.
+
 During the installation set the following options:
 ```yaml
 Passowrd: <passowrd>
@@ -11,7 +13,7 @@ SSH server: OpenSSH
 Software to install: git, docker, docker compose
 ```
 
-Place the microSD card in the RaspberryPi and plug it in. Wait for the system to install itself (the front LED will stop flashing when its done).
+Once the setup is follow the next steps.
 
 # Setup DietPi
 
