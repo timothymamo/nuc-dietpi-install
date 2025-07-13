@@ -14,6 +14,7 @@ mkdir -p ${HOME}/.docker/completions
 docker completion zsh > ${HOME}/.docker/completions/_docker
 
 # Set zsh as the default shell for the ${USER}
+echo "\n------------------------------------------------"
 echo "Settign zsh as default shell for ${USER}"
 command -v zsh | sudo tee -a /etc/shells
 chsh -s "$(command -v zsh)" ${USER}
@@ -24,12 +25,15 @@ sed -i "s/HOST/${HOST}/g" ${HOME}/.gitconfig
 
 # Copying snbcredentials to be able to connect to NAS
 cp ${HOME}/.smbcredentials-example ${HOME}/.smbcredentials
+chown ditepi:dietpi ${HOME}/.smbcredentials
 
 # Start the containers
 pushd ${HOME}/docker-compose
 docker compose up --detach --wait --wait-timeout 60
 
+# UNSURE IF NEEDED
 # Allowing containers in different networks to talk to each other
+echo "\n------------------------------------------------"
 echo "Finding docker compose networks and modifying iptables to allow containers in different networks to talk to each other"
 for DC_NET_IDS in DC_NET_1 DC_NET_2; do
     read -r "${DC_NET_IDS}"
