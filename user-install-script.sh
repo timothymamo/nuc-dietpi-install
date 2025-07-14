@@ -3,8 +3,8 @@
 # Change directory to $[HOME]
 pushd ${HOME}
 
-ssh-keygen -a 100 -t ed25519 -f ${HOME}/.ssh/id_ed25519 -C "${USER}@${HOST}"
-ssh-keygen -a 100 -t rsa -f ${HOME}/.ssh/id_rsa -C "${USER}@${HOST}"
+ssh-keygen -a 100 -t ed25519 -f ${HOME}/.ssh/id_ed25519
+ssh-keygen -a 100 -t rsa -f ${HOME}/.ssh/id_rsa
 echo "host github.com
  HostName github.com
  IdentityFile ~/.ssh/id_ed25519" > ${HOME}/.ssh/config
