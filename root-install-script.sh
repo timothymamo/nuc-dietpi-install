@@ -81,7 +81,9 @@ if [ ! -d ${DEST} ];then
 	exit -1
 fi
 
-rsync --rsh="ssh -i ${HOME_USER}/.ssh/id_ed25519" --info=skip0 --archive --recursive --human-readable --no-links --delete ${SRC} ${DEST}' > /etc/cron.daily/rsync-nas
+rsync --rsh="ssh -i ${HOME_USER}/.ssh/id_ed25519" --info=skip0 --archive --recursive --human-readable --no-links --delete ${SRC} ${DEST}
+rm -rf ${DEST}/*.log
+touch "$(date +"%Y_%m_%d_%H_%M_%S").log" > ${DEST}' > /etc/cron.daily/rsync-nas
 chmod +x /etc/cron.daily/rsync-nas
 
 # Create a git directory and clone this repo
