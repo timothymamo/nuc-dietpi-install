@@ -31,6 +31,7 @@ apt -y install \
   nfs-common \
   cifs-utils \
   rsync \
+  mailutils \
   build-essential \
   vim \
   zsh \

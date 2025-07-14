@@ -1,3 +1,6 @@
+# Ignore htop output
+.config/htop
+
 # Ignore docker .env file
 docker-compose/.env
 
