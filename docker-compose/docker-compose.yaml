@@ -272,7 +272,7 @@ services:
     volumes:
       - /home/tim/config/lazylibrarian:/config
       - /home/tim/nas/data/usenet/books/:/downloads
-      - /home/tim/nas/data/books/:/books #optional
+      - /home/tim/nas/data/media/books/:/books #optional
     ports:
       - 5299:5299
     restart: unless-stopped
