@@ -19,6 +19,7 @@ alias ssh_asus="ssh -i ~/.ssh/id_rsa The_Force@router.asus.com"
 
 # Misc
 alias ls='ls --color=auto'
+alias cdg='cd ${HOME}/git/nuc-dietpi-install'
 
 # NUC specific aliases
 alias hacheck='docker exec homeassistant bash -c "hass --script check_config -c /config/"'
