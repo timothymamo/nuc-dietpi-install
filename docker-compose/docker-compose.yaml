@@ -245,21 +245,21 @@ services:
     networks:
       - home-web
 
-  readarr:
-    image: lscr.io/linuxserver/readarr:0.4.19-nightly
-    container_name: readarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Amsterdam
-    volumes:
-      - /home/tim/config/readarr:/config
-      - /home/tim/nas/data:/data
-    ports:
-      - 8787:8787
-    restart: unless-stopped
-    networks:
-      - home-web
+  # readarr:
+  #   image: lscr.io/linuxserver/readarr:0.4.19-nightly
+  #   container_name: readarr
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/Amsterdam
+  #   volumes:
+  #     - /home/tim/config/readarr:/config
+  #     - /home/tim/nas/data:/data
+  #   ports:
+  #     - 8787:8787
+  #   restart: unless-stopped
+  #   networks:
+  #     - home-web
   
   lazylibrarian:
     image: lscr.io/linuxserver/lazylibrarian:580288e0-ls172
