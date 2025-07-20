@@ -165,7 +165,6 @@ services:
   transmission:
     image: linuxserver/transmission:4.0.6
     container_name: transmission
-    hostname: transmission
     environment:
       - PUID=1000
       - PGID=1000
@@ -181,7 +180,6 @@ services:
   nzbget:
     image: lscr.io/linuxserver/nzbget:version-v25.2
     container_name: nzbget
-    hostname: nzbget
     environment:
       - PUID=1000
       - PGID=1000
@@ -197,7 +195,6 @@ services:
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:4.5.2
     container_name: sabnzbd
-    hostname: sabnzbd
     environment:
       - PUID=1000
       - PGID=1000
