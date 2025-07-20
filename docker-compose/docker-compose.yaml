@@ -37,7 +37,7 @@ services:
     expose:
       - 9091
     volumes:
-      - /home/tim/config/authelia:/config`
+      - /home/tim/config/authelia:/config
     networks:
       - home-web
     restart: unless-stopped
