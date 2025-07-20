@@ -4,7 +4,6 @@ services:
     image: lscr.io/linuxserver/swag:4.1.1
     container_name: web
     hostname: web
-    restart: unless-stopped
     cap_add:
       - NET_ADMIN
     environment:
@@ -24,31 +23,46 @@ services:
       - 81:81
     networks:
       - home-web
+    restart: unless-stopped
 
   authelia:
-    container_name: 'authelia'
     image: ghcr.io/authelia/authelia:4.39.5
-    restart: unless-stopped
+    container_name: authelia
+    hostname: authelia
     user: "1000:1000"
     depends_on:
       - web
+    environment:
+      - TZ=Europe/Amsterdam
     expose:
       - 9091
     volumes:
-      - /home/tim/config/authelia:/config
-    environment:
-      TZ: 'Europe/Amsterdam'
+      - /home/tim/config/authelia:/config`
     networks:
       - home-web
+    restart: unless-stopped
 
   gluetun:
     image: ghcr.io/qdm12/gluetun:v3.40.0
     container_name: gluetun
-    restart: unless-stopped
+    hostname: gluetun
     cap_add:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
+    environment:
+      - VPN_SERVICE_PROVIDER=nordvpn
+      - VPN_TYPE=wireguard
+      - SERVER_COUNTRIES=Netherlands
+      - SERVER_CITIES=Amsterdam
+      # Wireguard:
+      - WIREGUARD_PRIVATE_KEY=${NORDVPN_TOKEN}
+      - TZ=Europe/Amsterdam
+      # Server list updater
+      # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
+      - UPDATER_PERIOD=24h
+    volumes:
+      - /home/tim/config/gluetun:/gluetun
     ports:
       - 8888:8888/tcp # HTTP proxy
       - 8388:8388/tcp # Shadowsocks
@@ -61,26 +75,14 @@ services:
       - 6881:6881
       - 6881:6881/udp
       - 8480:8080
-    volumes:
-      - /home/tim/config/gluetun:/gluetun
-    environment:
-      - VPN_SERVICE_PROVIDER=nordvpn
-      - VPN_TYPE=wireguard
-      - SERVER_COUNTRIES=Netherlands
-      - SERVER_CITIES=Amsterdam
-      # Wireguard:
-      - WIREGUARD_PRIVATE_KEY=${NORDVPN_TOKEN}
-      - TZ=Europe/Amsterdam
-      # Server list updater
-      # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
-      - UPDATER_PERIOD=24h
     networks:
       - home-web
+    restart: unless-stopped
 
   homeassistant:
     image: ghcr.io/home-assistant/home-assistant:2025.7.2
     container_name: homeassistant
-    hostname: homeassistant 
+    hostname: homeassistant
     depends_on:
       - web
       - transmission
@@ -92,21 +94,20 @@ services:
       interval: 5s
       timeout: 3s
       retries: 100
-    restart: unless-stopped
     privileged: true
-    environment:
-      - TZ=Europe/Amsterdam
     devices:
       - /dev/ttyAMA0
       - /dev/ttyACM0
+    environment:
+      - TZ=Europe/Amsterdam
     volumes:
       - /home/tim/config/homeassistant:/config
     network_mode: host
+    restart: unless-stopped
 
   influxdb:
     image: influxdb:2.7.12
-    container_name: influxdb 
-    restart: unless-stopped
+    container_name: influxdb
     hostname: influxdb
     depends_on:
       - web
@@ -120,6 +121,7 @@ services:
       - /home/tim/config/influxdb2:/var/lib/influxdb2
     ports:
       - 8086:8086
+    restart: unless-stopped
 
   telegraf:
     image: telegraf:1.35.2 
@@ -130,7 +132,6 @@ services:
     depends_on:
       - web
       - influxdb
-    restart: unless-stopped
     links:
       - influxdb
     environment:
@@ -143,6 +144,7 @@ services:
       - /:/hostfs:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./services/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:12.0.2
@@ -152,17 +154,18 @@ services:
     depends_on:
       - web
       - telegraf
-    restart: unless-stopped
     volumes:
       - /home/tim/config/grafana:/var/lib/grafana
     ports:
       - 3000:3000
     networks:
       - home-web
+    restart: unless-stopped
 
   transmission:
     image: linuxserver/transmission:4.0.6
     container_name: transmission
+    hostname: transmission
     environment:
       - PUID=1000
       - PGID=1000
@@ -172,12 +175,13 @@ services:
     volumes:
       - /home/tim/config/transmission:/config
       - /home/tim/nas/data/torrents:/data/torrents
-    restart: unless-stopped
     network_mode: "service:gluetun"
+    restart: unless-stopped
 
   nzbget:
     image: lscr.io/linuxserver/nzbget:version-v25.2
     container_name: nzbget
+    hostname: nzbget
     environment:
       - PUID=1000
       - PGID=1000
@@ -187,12 +191,13 @@ services:
     volumes:
       - /home/tim/config/nzbget:/config
       - /home/tim/nas/data/usenet:/data/usenet
-    restart: unless-stopped
     network_mode: "service:gluetun"
+    restart: unless-stopped
 
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:4.5.2
     container_name: sabnzbd
+    hostname: sabnzbd
     environment:
       - PUID=1000
       - PGID=1000
@@ -200,8 +205,8 @@ services:
     volumes:
       - /home/tim/config/sabnzbd:/config
       - /home/tim/nas/data/usenet:/data/usenet
-    restart: unless-stopped
     network_mode: "service:gluetun"
+    restart: unless-stopped
   
   sonarr:
     image: linuxserver/sonarr:4.0.15
@@ -220,9 +225,9 @@ services:
       - /home/tim/nas/data:/data
     ports:
       - 8989:8989
-    restart: unless-stopped
     networks:
       - home-web
+    restart: unless-stopped
   
   radarr:
     image: linuxserver/radarr:5.27.2-nightly
@@ -241,13 +246,14 @@ services:
       - /home/tim/nas/data:/data
     ports:
       - 7878:7878
-    restart: unless-stopped
     networks:
       - home-web
+    restart: unless-stopped
 
   readarr:
     image: lscr.io/linuxserver/readarr:0.4.19-nightly
     container_name: readarr
+    hostname: readarr
     environment:
       - PUID=1000
       - PGID=1000
@@ -257,31 +263,14 @@ services:
       - /home/tim/nas/data:/data
     ports:
       - 8787:8787
-    restart: unless-stopped
     networks:
       - home-web
-  
-  # lazylibrarian:
-  #   image: lscr.io/linuxserver/lazylibrarian:580288e0-ls172
-  #   container_name: lazylibrarian
-  #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Europe/Amsterdam
-  #     - DOCKER_MODS=linuxserver/mods:universal-calibre|linuxserver/mods:lazylibrarian-ffmpeg
-  #   volumes:
-  #     - /home/tim/config/lazylibrarian:/config
-  #     - /home/tim/nas/data/usenet/books/:/downloads
-  #     - /home/tim/nas/data/media/books/:/books #optional
-  #   ports:
-  #     - 5299:5299
-  #   restart: unless-stopped
-  #   networks:
-  #     - home-web
+    restart: unless-stopped
 
   lidarr:
     image: lscr.io/linuxserver/lidarr:2.12.4.4658-ls45
     container_name: lidarr
+    hostname: lidarr
     environment:
       - PUID=1000
       - PGID=1000
@@ -291,9 +280,9 @@ services:
       - /home/tim/nas/data:/data
     ports:
       - 8686:8686
-    restart: unless-stopped
     networks:
       - home-web
+    restart: unless-stopped
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:2.0.2-nightly
@@ -310,13 +299,17 @@ services:
       - /home/tim/config/prowlarr:/config
     ports:
       - 9696:9696
-    restart: unless-stopped
     networks:
       - home-web
+    restart: unless-stopped
 
   audiobookshelf:
     image: ghcr.io/advplyr/audiobookshelf:2.26.1
     container_name: audiobookshelf
+    hostname: audiobookshelf
+    environment:
+      - TZ=Europe/Amsterdam
+      - PORT=13378
     ports:
       - 13378:13378
     volumes:
@@ -324,12 +317,9 @@ services:
       - /home/tim/nas/data/media/audio/podcasts:/podcasts
       - /home/tim/config/audiobookshelf:/config
       - /home/tim/nas/data/media/audiobookshelf/metadata:/metadata
-    environment:
-      - TZ=Europe/Amsterdam
-      - PORT=13378
-    restart: unless-stopped
     networks:
       - home-web
+    restart: unless-stopped
 
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:v3.3.25
@@ -342,9 +332,9 @@ services:
       - TZ=Europe/Amsterdam
     ports:
       - "${PORT:-8191}:8191"
-    restart: unless-stopped
     networks:
       - home-web
+    restart: unless-stopped
 
   plex:
     image: linuxserver/plex:1.41.9
@@ -362,28 +352,42 @@ services:
       - /home/tim/config/plex:/config
       - /home/tim/nas/data/media:/data/media
       - /tmp/transcoding:/tmp/transcoding
-    restart: unless-stopped
     network_mode: host
+    restart: unless-stopped
 
   overseerr:
     image: linuxserver/overseerr:1.34.0
     container_name: overseerr
+    hostname: overseerr
     environment:
       - TZ=Europe/Amsterdam
       - PORT=5055
-    ports:
-      - 5055:5055
     volumes:
       - /home/tim/config/overseerr:/app/config
-    restart: unless-stopped
+    ports:
+      - 5055:5055
     networks:
       - home-web
+    restart: unless-stopped
+  
+  huntarr:
+    image: ghcr.io/plexguide/huntarr:latest
+    container_name: huntarr
+    hostname: huntarr
+    environment:
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /home/tim/config/huntarr:/config
+    ports:
+      - 9705:9705
+    networks:
+      - home-web
+    restart: unless-stopped
 
   speedtest-tracker:
     image: linuxserver/speedtest-tracker:1.6.5
     container_name: speedtest-tracker
-    ports:
-      - 8080:80
+    hostname: speedtest-tracker
     environment:
       - PUID=1000
       - PGID=1000
@@ -401,9 +405,11 @@ services:
       - PRUNE_RESULTS_OLDER_THAN=120
     volumes:
       - /home/tim/config/speedtest:/config
-    restart: unless-stopped
+    ports:
+      - 8080:80
     networks:
       - home-web
+    restart: unless-stopped
 
 networks:
   home-web:
