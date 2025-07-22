@@ -366,6 +366,34 @@ services:
     networks:
       - home-web
     restart: unless-stopped
+
+  # huntarr:
+  #   image: ghcr.io/plexguide/huntarr:latest
+  #   container_name: huntarr
+  #   hostname: huntarr
+  #   environment:
+  #     - TZ=Europe/Amsterdam
+  #   volumes:
+  #     - /home/tim/config/huntarr:/config
+  #   ports:
+  #     - 9705:9705
+  #   networks:
+  #     - home-web
+  #   restart: unless-stopped
+
+  notifiarr:
+    image: golift/notifiarr:v0.8.3
+    container_name: notifiarr
+    hostname: notifiarr
+    volumes:
+      - /home/tim/config/notifiarr:/config
+      - /var/run/utmp:/var/run/utmp
+      - /etc/machine-id:/etc/machine-id
+    ports:
+      - 5454:5454
+    networks:
+      - home-web
+    restart: unless-stopped
   
   speedtest-tracker:
     image: linuxserver/speedtest-tracker:1.6.5
