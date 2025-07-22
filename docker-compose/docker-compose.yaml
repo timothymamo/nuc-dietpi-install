@@ -385,6 +385,9 @@ services:
     image: golift/notifiarr:v0.8.3
     container_name: notifiarr
     hostname: notifiarr
+    environment:
+      - DN_API_KEY=${DN_API_KEY}
+      - DN_UI_PASSWORD=${DN_UI_PASSWORD}
     volumes:
       - /home/tim/config/notifiarr:/config
       - /var/run/utmp:/var/run/utmp
