@@ -365,19 +365,19 @@ services:
       - home-web
     restart: unless-stopped
 
-  # huntarr:
-  #   image: ghcr.io/plexguide/huntarr:latest
-  #   container_name: huntarr
-  #   hostname: huntarr
-  #   environment:
-  #     - TZ=Europe/Amsterdam
-  #   volumes:
-  #     - /home/tim/config/huntarr:/config
-  #   ports:
-  #     - 9705:9705
-  #   networks:
-  #     - home-web
-  #   restart: unless-stopped
+  huntarr:
+    image: ghcr.io/plexguide/huntarr:latest
+    container_name: huntarr
+    hostname: huntarr
+    environment:
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /home/tim/config/huntarr:/config
+    ports:
+      - 9705:9705
+    networks:
+      - home-web
+    restart: unless-stopped
 
   notifiarr:
     image: golift/notifiarr:0.8.3
