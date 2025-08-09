@@ -70,28 +70,35 @@ cp -R /mnt/backup/nuc/config/ ${HOME_USER}/config
 # Creating rsync backup daily cron of config dir to NAS
 echo "\n------------------------------------------------"
 echo "Creating a daily backup of the config directory to the NAS"
-echo '#!/bin/zsh
+echo '#!/bin/bash
 
 # Set Variables
 HOME_USER=/home/tim
 SRC=${HOME_USER}/config/
 DEST=/mnt/backup/nuc/config
-TMP_LOG_FILE=/tmp/logs/rsync.log
+TMP_LOG_FILE=/var/log/rsync.log
+
+if [ -f ${TMP_LOG_FILE} ]; then
+	rm -rf ${TMP_LOG_FILE}
+	touch ${TMP_LOG_FILE}
+else
+	touch ${TMP_LOG_FILE}
+fi
 
 # Make sure destination directory is mounted and exists
-if [ ! -d ${DEST} ];then
+if [ ! -d ${DEST} ]; then
 	echo "${DEST} drive does not exist. Please mount the Drive ${DEST} before continuing"
 	exit -1
 fi > ${TMP_LOG_FILE} 2>&1
 
 # Sync the config directory to the NAS; Output logs to temp file
-rsync --rsh="ssh -i ${HOME_USER}/.ssh/id_ed25519" --info=skip0 --archive --recursive --human-readable --no-links --delete ${SRC} ${DEST} >> ${TMP_LOG_FILE} 2>&1
+/usr/bin/rsync --rsh="ssh -i ${HOME_USER}/.ssh/id_ed25519" --info=skip0 --archive --recursive --human-readable --no-links --delete --exclude "${DEST}/*.log" file.txt ${SRC} ${DEST} >> ${TMP_LOG_FILE} 2>&1
 
 # Remove any log files older than 2 weeks on the NAS
-find ${DEST}/*.log -mtime +14 -exec rm {} \; >> ${TMP_LOG_FILE} 2>&1
+/usr/bin/find ${DEST}/*.log -mtime +14 -exec rm {} \; >> ${TMP_LOG_FILE} 2>&1
 
 # Copy the log file to the NAS
-cp ${TMP_LOG_FILE} ${DEST}/"$(date +"%Y_%m_%d_%H_%M_%S").log"' > /etc/cron.daily/rsync-nas
+/usr/bin/cp ${TMP_LOG_FILE} ${DEST}/"$(date +"%Y_%m_%d_%H_%M_%S").log"' > /etc/cron.daily/rsync-nas
 chmod +x /etc/cron.daily/rsync-nas
 
 # Create a git directory and clone this repo
