@@ -22,7 +22,7 @@
 		{
 			"matchDatasources": ["docker"],
 			"matchPackageNames": ["linuxserver/plex"],
-			"versionScheme": "regex:^(?<major>\\d)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(\\d+)-([\\d|\\w]+)-ls(?\\d+)?$"
+			"versionScheme": "regex:^(?<major>\\d)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(\\d+)-([\\d|\\w]+)-ls(\\d+)?$"
 		}
 	]
 }
