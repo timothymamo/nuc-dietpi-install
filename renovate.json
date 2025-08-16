@@ -18,11 +18,6 @@
 			"matchDatasources": ["docker"],
 			"matchPackageNames": ["lscr.io/linuxserver/nzbget"],
 			"versionScheme": "regex:^version-v(?<major>\\d)\\.(?<minor>\\d+)?$"
-		},
-		{
-			"matchDatasources": ["docker"],
-			"matchPackageNames": ["linuxserver/plex"],
-			"versionScheme": "regex:^(?<major>\\d)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(\\d+)-([\\d|\\w]+)-ls(\\d+)?$"
 		}
 	]
 }
