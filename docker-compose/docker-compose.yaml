@@ -280,7 +280,7 @@ services:
     restart: unless-stopped
 
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:2.0.3-nightly
+    image: lscr.io/linuxserver/prowlarr:2.0.4-nightly
     container_name: prowlarr
     hostname: prowlarr
     depends_on:
