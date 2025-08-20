@@ -142,6 +142,7 @@ systemctl restart sshd
 echo "\n------------------------------------------------"
 echo "Setting up Docker user and permissions"
 usermod -aG docker ${USER_SCRIPT}
+usermod -aG docker dietpi
 systemctl enable docker
 
 # Set docker to start 30s after boot to allow volumes to mount
