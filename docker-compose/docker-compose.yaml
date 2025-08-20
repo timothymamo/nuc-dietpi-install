@@ -125,7 +125,7 @@ services:
     image: telegraf:1.35.3 
     container_name: telegraf
     hostname: telegraf
-    user: telegraf:998
+    user: telegraf:996
     privileged: true
     depends_on:
       - web
