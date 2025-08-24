@@ -78,7 +78,7 @@ services:
     restart: unless-stopped
 
   homeassistant:
-    image: ghcr.io/home-assistant/home-assistant:2025.8.2
+    image: ghcr.io/home-assistant/home-assistant:2025.8.3
     container_name: homeassistant
     hostname: homeassistant
     depends_on:
