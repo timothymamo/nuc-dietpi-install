@@ -225,7 +225,7 @@ services:
     restart: unless-stopped
   
   radarr:
-    image: linuxserver/radarr:5.27.5-nightly
+    image: linuxserver/radarr:nightly-version-5.27.5.10184
     container_name: radarr
     hostname: radarr
     depends_on:
@@ -263,7 +263,7 @@ services:
     restart: unless-stopped
 
   lidarr:
-    image: lscr.io/linuxserver/lidarr:2.12.4.4658-ls45
+    image: lscr.io/linuxserver/lidarr:nightly-version-2.14.1.4697
     container_name: lidarr
     hostname: lidarr
     environment:
