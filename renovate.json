@@ -6,18 +6,13 @@
 	[
 		{
 			"matchDatasources": ["docker"],
-			"matchPackageNames": ["linuxserver/radarr"],
-			"versionScheme": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-nightly?$"
-		},
-		{
-			"matchDatasources": ["docker"],
 			"matchPackageNames": ["lscr.io/linuxserver/prowlarr"],
 			"versionScheme": "regex:^(?<major>\\d)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-nightly?$"
 		},
 		{
 			"matchDatasources": ["docker"],
-			"matchPackageNames": ["lscr.io/linuxserver/nzbget"],
-			"versionScheme": "regex:^version-v(?<major>\\d)\\.(?<minor>\\d+)?$"
+			"matchPackageNames": ["lscr.io/linuxserver/lidarr"],
+			"versionScheme": "regex:^(?<major>\\d)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-nightly?$"
 		}
 	]
 }
