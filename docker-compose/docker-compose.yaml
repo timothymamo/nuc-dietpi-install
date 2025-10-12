@@ -299,7 +299,7 @@ services:
     restart: unless-stopped
 
   audiobookshelf:
-    image: ghcr.io/advplyr/audiobookshelf:2.29.0
+    image: ghcr.io/advplyr/audiobookshelf:2.30.0
     container_name: audiobookshelf
     hostname: audiobookshelf
     environment:
