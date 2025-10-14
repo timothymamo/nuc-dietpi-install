@@ -12,6 +12,8 @@ services:
       - TZ=Europe/Amsterdam
       - URL=timsdomain.duckdns.org
       - VALIDATION=duckdns
+      - CERTPROVIDER=zerossl
+      - EMAIL=${ZERO_SSL_EMAIL}
       - SUBDOMAINS=wildcard
       - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
       - DOCKER_MODS=linuxserver/mods:swag-dashboard|linuxserver/mods:swag-dbip
