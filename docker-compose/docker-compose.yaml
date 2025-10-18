@@ -434,10 +434,6 @@ services:
       - home-web
     restart: unless-stopped
 
-
-volumes:
-  etc_wireguard:
-
 networks:
   home-web:
   wg:
