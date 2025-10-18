@@ -376,21 +376,6 @@ services:
     network_mode: host
     restart: unless-stopped
 
-  overseerr:
-    image: linuxserver/overseerr:1.34.0
-    container_name: overseerr
-    hostname: overseerr
-    environment:
-      - TZ=Europe/Amsterdam
-      - PORT=5055
-    volumes:
-      - /home/tim/config/overseerr:/app/config
-    ports:
-      - 5055:5055
-    networks:
-      - home-web
-    restart: unless-stopped
-
   huntarr:
     image: ghcr.io/plexguide/huntarr:8.2.10
     container_name: huntarr
