@@ -37,11 +37,6 @@ services:
     volumes:
       - /home/tim/config/wireguard:/etc/wireguard
       - /lib/modules:/lib/modules:ro
-    environment:
-      - INSECURE=true
-    #   - WG_HOST=${WG_HOST}
-    #   - WG_DEFAULT_DNS=192.168.1.70
-    #   - PASSWORD=${WG_PASSWORD}
     ports:
       - "51820:51820/udp"
       - "51821:51821/tcp"
