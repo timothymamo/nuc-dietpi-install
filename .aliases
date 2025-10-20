@@ -9,7 +9,7 @@ alias gst='git status'
 
 # Docker
 alias dps='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Names}}"'
-alias dcup='cd ${HOME}/docker-compose/; git pull; docker compose up -d'
+alias dcup='cd ${HOME}/docker-compose/; git pull; docker compose up -d --remove-orphans'
 alias dcrs='cd ${HOME}/docker-compose/; docker compose restart'
 alias banner='/boot/dietpi/func/dietpi-banner 1'
 
