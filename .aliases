@@ -12,6 +12,7 @@ alias dps='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.RunningFor}}\t{{.St
 alias dcup='cd ${HOME}/docker-compose/; git pull; docker compose up -d --remove-orphans'
 alias dcrs='cd ${HOME}/docker-compose/; docker compose restart'
 alias banner='/boot/dietpi/func/dietpi-banner 1'
+alias dclean='docker system prune --all --volumes --force; docker volume prune --all --force'
 
 # SSH
 alias ssh_nuc="ssh -i ~/.ssh/id_ed25519  tim@server.home"
