@@ -205,7 +205,7 @@ services:
     restart: unless-stopped
 
   nzbget:
-    image: lscr.io/linuxserver/nzbget:25.4.20251009
+    image: lscr.io/linuxserver/nzbget:25.4.20251017
     container_name: nzbget
     environment:
       - PUID=1000
