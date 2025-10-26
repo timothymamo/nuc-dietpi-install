@@ -107,6 +107,9 @@ services:
     image: ghcr.io/home-assistant/home-assistant:2025.10.2
     container_name: homeassistant
     hostname: homeassistant
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     depends_on:
       - web
       - transmission
