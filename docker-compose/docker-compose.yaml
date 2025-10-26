@@ -289,7 +289,7 @@ services:
     restart: unless-stopped
 
   lidarr:
-    image: lscr.io/linuxserver/lidarr:2.14.5-nightly
+    image: lscr.io/linuxserver/lidarr:3.0.1-nightly
     container_name: lidarr
     hostname: lidarr
     environment:
