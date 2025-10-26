@@ -129,6 +129,7 @@ services:
       - TZ=Europe/Amsterdam
     volumes:
       - /home/tim/config/homeassistant:/config
+      - /run/dbus:/run/dbus:ro
     network_mode: host
     restart: unless-stopped
 
