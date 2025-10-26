@@ -251,7 +251,7 @@ services:
     restart: unless-stopped
   
   radarr:
-    image: linuxserver/radarr:5.27.5
+    image: linuxserver/radarr:5.28.0
     container_name: radarr
     hostname: radarr
     depends_on:
