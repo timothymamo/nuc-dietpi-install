@@ -347,7 +347,7 @@ services:
     restart: unless-stopped
 
   flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:v3.4.3
+    image: ghcr.io/flaresolverr/flaresolverr:v3.4.4
     container_name: flaresolverr
     hostname: flaresolverr
     environment:
