@@ -52,7 +52,7 @@ services:
       - net.ipv6.conf.default.forwarding=1
 
   authelia:
-    image: ghcr.io/authelia/authelia:4.39.13
+    image: ghcr.io/authelia/authelia:4.39.14
     container_name: authelia
     hostname: authelia
     user: "1000:1000"
