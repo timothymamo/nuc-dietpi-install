@@ -69,7 +69,7 @@ services:
     restart: unless-stopped
 
   gluetun:
-    image: ghcr.io/qdm12/gluetun:v3.40.0
+    image: ghcr.io/qdm12/gluetun:v3.40.1
     container_name: gluetun
     hostname: gluetun
     cap_add:
