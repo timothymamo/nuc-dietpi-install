@@ -415,7 +415,7 @@ services:
     restart: unless-stopped
   
   speedtest-tracker:
-    image: linuxserver/speedtest-tracker:1.8.0
+    image: linuxserver/speedtest-tracker:1.10.2
     container_name: speedtest-tracker
     hostname: speedtest-tracker
     environment:
