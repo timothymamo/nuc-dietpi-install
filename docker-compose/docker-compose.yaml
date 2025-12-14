@@ -1,7 +1,7 @@
 services:
 
   web:
-    image: lscr.io/linuxserver/swag:5.2.1
+    image: lscr.io/linuxserver/swag:5.2.2
     container_name: web
     hostname: web
     cap_add:
