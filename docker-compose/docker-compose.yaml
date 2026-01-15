@@ -133,34 +133,34 @@ services:
     network_mode: host
     restart: unless-stopped
 
-  zigbee2mqtt:
-    image: koenkk/zigbee2mqtt
-    container_name: zigbee2mqtt
-    devices:
-      - /dev/ttyACM0
-    environment:
-      - TZ=Europe/Amsterdam
-    volumes:
-      - /home/tim/config/zigbee2mqtt:/app/data
-      - /run/udev:/run/udev:ro
-    ports:
-      - 8580:8080
-    networks:
-      - home-web
-    restart: unless-stopped
-  
-  mosquitto:
-    image: eclipse-mosquitto:2.0
-    container_name: mosquitto
-    command: "mosquitto -c /mosquitto-no-auth.conf"
-    volumes:
-      - /home/tim/config/mosquitto:/mosquitto
-    ports:
-      - 1883:1883
-      - 9001:9001
-    networks:
-      - home-web
-    restart: unless-stopped
+      #  zigbee2mqtt:
+      #    image: koenkk/zigbee2mqtt
+      #    container_name: zigbee2mqtt
+      #    devices:
+      #      - /dev/ttyACM0
+      #    environment:
+      #      - TZ=Europe/Amsterdam
+      #    volumes:
+      #      - /home/tim/config/zigbee2mqtt:/app/data
+      #      - /run/udev:/run/udev:ro
+      #    ports:
+      #      - 8580:8080
+      #    networks:
+      #      - home-web
+      #    restart: unless-stopped
+      #  
+      #  mosquitto:
+      #    image: eclipse-mosquitto:2.0
+      #    container_name: mosquitto
+      #    command: "mosquitto -c /mosquitto-no-auth.conf"
+      #    volumes:
+      #      - /home/tim/config/mosquitto:/mosquitto
+      #    ports:
+      #      - 1883:1883
+      #      - 9001:9001
+      #    networks:
+      #      - home-web
+      #    restart: unless-stopped
 
   influxdb:
     image: influxdb:2.8.0
