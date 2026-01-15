@@ -123,7 +123,7 @@ services:
       retries: 100
     privileged: true
     devices:
-      - /dev/ttyAMA0
+      # - /dev/ttyAMA0
       - /dev/ttyACM0
     environment:
       - TZ=Europe/Amsterdam
@@ -137,7 +137,6 @@ services:
     image: koenkk/zigbee2mqtt
     container_name: zigbee2mqtt
     devices:
-      - /dev/ttyAMA0
       - /dev/ttyACM0
     environment:
       - TZ=Europe/Amsterdam
