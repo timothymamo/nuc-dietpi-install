@@ -133,6 +133,17 @@ services:
     network_mode: host
     restart: unless-stopped
 
+  esphome:
+    container_name: esphome
+    image: ghcr.io/esphome/esphome:2026.1.1
+    volumes:
+      - /home/tim/config/esphome/config:/config
+    environment:
+      - TZ=Europe/Amsterdam
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+
       #  zigbee2mqtt:
       #    image: koenkk/zigbee2mqtt
       #    container_name: zigbee2mqtt
