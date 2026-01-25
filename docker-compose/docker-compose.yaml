@@ -410,7 +410,7 @@ services:
     restart: unless-stopped
 
   huntarr:
-    image: ghcr.io/plexguide/huntarr:8.2.25
+    image: ghcr.io/plexguide/huntarr:9.0.1
     container_name: huntarr
     hostname: huntarr
     environment:
