@@ -402,7 +402,7 @@ services:
     restart: unless-stopped
 
   plex:
-    image: linuxserver/plex:1.42.2
+    image: linuxserver/plex:1.43.0
     container_name: plex
     hostname: plex
     depends_on:
