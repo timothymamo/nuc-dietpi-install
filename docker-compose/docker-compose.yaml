@@ -192,7 +192,7 @@ services:
     restart: unless-stopped
 
   telegraf:
-    image: telegraf:1.37.1 
+    image: telegraf:1.37.2 
     container_name: telegraf
     hostname: telegraf
     user: telegraf:996 #Ensure docker group ID is correct
