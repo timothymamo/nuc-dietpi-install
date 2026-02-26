@@ -420,20 +420,6 @@ services:
     network_mode: host
     restart: unless-stopped
 
-  huntarr:
-    image: ghcr.io/plexguide/huntarr:9.2.4
-    container_name: huntarr
-    hostname: huntarr
-    environment:
-      - TZ=Europe/Amsterdam
-    volumes:
-      - /home/tim/config/huntarr:/config
-    ports:
-      - 9705:9705
-    networks:
-      - home-web
-    restart: unless-stopped
-
   notifiarr:
     image: golift/notifiarr:v0.9.2
     container_name: notifiarr
