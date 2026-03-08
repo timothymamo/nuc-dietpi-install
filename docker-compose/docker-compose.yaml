@@ -231,7 +231,7 @@ services:
     restart: unless-stopped
 
   transmission:
-    image: linuxserver/transmission:4.1.0
+    image: linuxserver/transmission:4.1.1
     container_name: transmission
     environment:
       - PUID=1000
