@@ -174,7 +174,7 @@ services:
       #    restart: unless-stopped
 
   influxdb:
-    image: influxdb:2.8.0
+    image: influxdb:2.9.0
     container_name: influxdb
     hostname: influxdb
     depends_on:
