@@ -500,8 +500,8 @@ services:
       - PRUNE_RESULTS_OLDER_THAN=120
     volumes:
       - /home/tim/config/speedtest:/config
-    expose:
-      - 80
+    ports:
+      - 8080:80
     networks:
       - monitoring-net
     security_opt:
