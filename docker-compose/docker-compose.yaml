@@ -460,6 +460,27 @@ services:
     network_mode: host
     restart: unless-stopped
 
+  tautulli:
+    image: ghcr.io/tautulli/tautulli:v2.17.1
+    container_name: tautulli
+    hostname: tautulli
+    depends_on:
+      - plex
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /home/tim/config/tautulli:/config
+    expose:
+      - 8181
+    networks:
+      - media-net
+      - monitoring-net
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
   notifiarr:
     image: golift/notifiarr:v0.9.5
     container_name: notifiarr
