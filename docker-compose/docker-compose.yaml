@@ -6,6 +6,8 @@ services:
     hostname: web
     cap_add:
       - NET_ADMIN
+    security_opt:
+      - no-new-privileges:true
     environment:
       - PUID=1000
       - PGID=1000
@@ -24,7 +26,9 @@ services:
       - 80:80
       - 81:81
     networks:
-      - home-web
+      - proxy-net
+      - media-net
+      - monitoring-net
     restart: unless-stopped
 
   wg-easy:
@@ -34,16 +38,19 @@ services:
       wg:
         ipv4_address: 10.42.42.42
         ipv6_address: fdcc:ad94:bacf:61a3::2a
+      proxy-net: {}
     volumes:
       - /home/tim/config/wireguard:/etc/wireguard
       - /lib/modules:/lib/modules:ro
     ports:
       - "51820:51820/udp"
-      - "51821:51821/tcp"
+      - "127.0.0.1:51821:51821/tcp"
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
+    security_opt:
+      - no-new-privileges:true
     sysctls:
       - net.ipv4.ip_forward=1
       - net.ipv4.conf.all.src_valid_mark=1
@@ -65,7 +72,9 @@ services:
     volumes:
       - /home/tim/config/authelia:/config
     networks:
-      - home-web
+      - proxy-net
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
   gluetun:
@@ -74,6 +83,8 @@ services:
     hostname: gluetun
     cap_add:
       - NET_ADMIN
+    security_opt:
+      - no-new-privileges:true
     devices:
       - /dev/net/tun:/dev/net/tun
     environment:
@@ -97,10 +108,9 @@ services:
       - 51413:51413 # Transmission
       - 51413:51413/udp # Transmission
       - 8090:8090
-      - 6789:6789 # NZBGet
       - 8480:8080 # SabNZB
     networks:
-      - home-web
+      - media-net
     restart: unless-stopped
 
   homeassistant:
@@ -120,7 +130,7 @@ services:
       test: ["CMD", "curl", "-s", "http://localhost:8123"]
       interval: 5s
       timeout: 3s
-      retries: 100
+      retries: 15
     privileged: true
     devices:
       # - /dev/ttyAMA0
@@ -157,9 +167,9 @@ services:
       #    ports:
       #      - 8580:8080
       #    networks:
-      #      - home-web
+      #      - media-net
       #    restart: unless-stopped
-      #  
+      #
       #  mosquitto:
       #    image: eclipse-mosquitto:2.0
       #    container_name: mosquitto
@@ -170,7 +180,7 @@ services:
       #      - 1883:1883
       #      - 9001:9001
       #    networks:
-      #      - home-web
+      #      - media-net
       #    restart: unless-stopped
 
   influxdb:
@@ -188,19 +198,21 @@ services:
     volumes:
       - /home/tim/config/influxdb2:/var/lib/influxdb2
     ports:
-      - 8086:8086
+      - "127.0.0.1:8086:8086"
+    networks:
+      - monitoring-net
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
   telegraf:
-    image: telegraf:1.38.4 
+    image: telegraf:1.38.4
     container_name: telegraf
     hostname: telegraf
     user: telegraf:996 #Ensure docker group ID is correct
     privileged: true
     depends_on:
       - web
-      - influxdb
-    links:
       - influxdb
     environment:
       - HOST_PROC=/hostfs/proc
@@ -212,22 +224,26 @@ services:
       - /:/hostfs:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./services/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    networks:
+      - monitoring-net
     restart: unless-stopped
 
   grafana:
     image: grafana/grafana:13.0.1
     container_name: grafana
     hostname: grafana
-    user: 0:0
+    user: "472:472"
     depends_on:
       - web
       - telegraf
     volumes:
       - /home/tim/config/grafana:/var/lib/grafana
     ports:
-      - 3000:3000
+      - "127.0.0.1:3000:3000"
     networks:
-      - home-web
+      - monitoring-net
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
   transmission:
@@ -245,21 +261,6 @@ services:
     network_mode: "service:gluetun"
     restart: unless-stopped
 
-#  nzbget:
-#    image: lscr.io/linuxserver/nzbget:25.4.20260130
-#    container_name: nzbget
-#    environment:
-#      - PUID=1000
-#      - PGID=1000
-#      - TZ=Europe/Amsterdam
-#      - NZBGET_USER=${TRANSMISSION_USERNAME}
-#      - NZBGET_PASS=${TRANSMISSION_PASSWORD}
-#    volumes:
-#      - /home/tim/config/nzbget:/config
-#      - /home/tim/nas/data/usenet:/data/usenet
-#    network_mode: "service:gluetun"
-#    restart: unless-stopped
-
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:5.0.3
     container_name: sabnzbd
@@ -272,7 +273,31 @@ services:
       - /home/tim/nas/data/usenet:/data/usenet
     network_mode: "service:gluetun"
     restart: unless-stopped
-  
+
+  sonarr-4k:
+    image: linuxserver/sonarr:4.0.17
+    container_name: sonarr-4k
+    hostname: sonarr-4k
+    depends_on:
+      - web
+      - prowlarr
+      - transmission
+      - sabnzbd
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /home/tim/config/sonarr-4k:/config
+      - /home/tim/nas/data:/data
+    expose:
+      - 8989
+    networks:
+      - media-net
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
   sonarr:
     image: linuxserver/sonarr:4.0.17
     container_name: sonarr
@@ -281,6 +306,7 @@ services:
       - web
       - prowlarr
       - transmission
+      - sabnzbd
     environment:
       - PUID=1000
       - PGID=1000
@@ -288,12 +314,14 @@ services:
     volumes:
       - /home/tim/config/sonarr:/config
       - /home/tim/nas/data:/data
-    ports:
-      - 8989:8989
+    expose:
+      - 8989
     networks:
-      - home-web
+      - media-net
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
-  
+
   radarr:
     image: linuxserver/radarr:6.1.1
     container_name: radarr
@@ -309,10 +337,12 @@ services:
     volumes:
       - /home/tim/config/radarr:/config
       - /home/tim/nas/data:/data
-    ports:
-      - 7878:7878
+    expose:
+      - 7878
     networks:
-      - home-web
+      - media-net
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
   readarr:
@@ -326,10 +356,12 @@ services:
     volumes:
       - /home/tim/config/readarr:/config
       - /home/tim/nas/data:/data
-    ports:
-      - 8787:8787
+    expose:
+      - 8787
     networks:
-      - home-web
+      - media-net
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
   lidarr:
@@ -343,10 +375,12 @@ services:
     volumes:
       - /home/tim/config/lidarr:/config
       - /home/tim/nas/data:/data
-    ports:
-      - 8686:8686
+    expose:
+      - 8686
     networks:
-      - home-web
+      - media-net
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
   prowlarr:
@@ -362,10 +396,12 @@ services:
       - TZ=Europe/Amsterdam
     volumes:
       - /home/tim/config/prowlarr:/config
-    ports:
-      - 9696:9696
+    expose:
+      - 9696
     networks:
-      - home-web
+      - media-net
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
   audiobookshelf:
@@ -375,15 +411,17 @@ services:
     environment:
       - TZ=Europe/Amsterdam
       - PORT=13378
-    ports:
-      - 13378:13378
+    expose:
+      - 13378
     volumes:
       - /home/tim/nas/data/media/audio/audiobooks:/audiobooks
       - /home/tim/nas/data/media/audio/podcasts:/podcasts
       - /home/tim/config/audiobookshelf:/config
       - /home/tim/nas/data/media/audiobookshelf/metadata:/metadata
     networks:
-      - home-web
+      - media-net
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
   flaresolverr:
@@ -395,10 +433,12 @@ services:
       - LOG_HTML=${LOG_HTML:-false}
       - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
       - TZ=Europe/Amsterdam
-    ports:
-      - "${PORT:-8191}:8191"
+    expose:
+      - 8191
     networks:
-      - home-web
+      - media-net
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
   plex:
@@ -431,12 +471,14 @@ services:
       - /home/tim/config/notifiarr:/config
       - /var/run/utmp:/var/run/utmp
       - /etc/machine-id:/etc/machine-id
-    ports:
-      - 5454:5454
+    expose:
+      - 5454
     networks:
-      - home-web
+      - media-net
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
-  
+
   speedtest-tracker:
     image: linuxserver/speedtest-tracker:1.14.2
     container_name: speedtest-tracker
@@ -458,14 +500,21 @@ services:
       - PRUNE_RESULTS_OLDER_THAN=120
     volumes:
       - /home/tim/config/speedtest:/config
-    ports:
-      - 8080:80
+    expose:
+      - 80
     networks:
-      - home-web
+      - monitoring-net
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
 networks:
-  home-web:
+  proxy-net:
+    driver: bridge
+  media-net:
+    driver: bridge
+  monitoring-net:
+    driver: bridge
   wg:
     driver: bridge
     enable_ipv6: true
