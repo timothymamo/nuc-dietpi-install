@@ -290,8 +290,8 @@ services:
     volumes:
       - /home/tim/config/sonarr-4k:/config
       - /home/tim/nas/data:/data
-    expose:
-      - 8989
+    ports:
+      - 8990:8989
     networks:
       - media-net
     security_opt:
