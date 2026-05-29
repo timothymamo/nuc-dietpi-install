@@ -281,7 +281,6 @@ services:
     depends_on:
       - web
       - prowlarr
-      - transmission
       - sabnzbd
     environment:
       - PUID=1000
@@ -322,6 +321,29 @@ services:
       - no-new-privileges:true
     restart: unless-stopped
 
+  radarr-4k:
+    image: linuxserver/radarr:6.1.1
+    container_name: radarr-4k
+    hostname: radarr-4k
+    depends_on:
+      - web
+      - prowlarr
+      - sabnzbd
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /home/tim/config/radarr-4k:/config
+      - /home/tim/nas/data:/data
+    expose:
+      - 7878
+    networks:
+      - media-net
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
   radarr:
     image: linuxserver/radarr:6.1.1
     container_name: radarr
@@ -330,6 +352,7 @@ services:
       - web
       - prowlarr
       - transmission
+      - sabnzbd
     environment:
       - PUID=1000
       - PGID=1000
