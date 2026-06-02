@@ -376,24 +376,52 @@ services:
       - no-new-privileges:true
     restart: unless-stopped
 
-  readarr:
-    image: lscr.io/linuxserver/readarr:0.4.19-nightly
-    container_name: readarr
-    hostname: readarr
+  chaptarr:
+    image: robertlordhood/chaptarr:latest
+    container_name: chaptarr
+    hostname: chaptarr
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=2000
+      - PGID=66000
       - TZ=Europe/Amsterdam
+      #Chaptarr__Postgres__Host:
+      #Chaptarr__Postgres__Port: #(default: 5432)
+      #Chaptarr__Postgres__User:
+      #Chaptarr__Postgres__Password:
+      #Chaptarr__Postgres__MainDb: #(default: chaptarr-main)
+      #Chaptarr__Postgres__LogDb: #(default: chaptarr-log)
+      #Chaptarr__Postgres__CacheDb: #(default: chaptarr-cache)
     volumes:
-      - /home/tim/config/readarr:/config
-      - /home/tim/nas/data:/data
+      - /home/tim/config/chaptarr:/config
+      - /home/tim/nas/data/chaptarr/bookstest:/books
+      - /home/tim/nas/data/chaptarr/audiobooks:/audiobooks
+      - /home/tim/nas/data/chaptarr/downloads:/downloads
     expose:
-      - 8787
+      - 8789
     networks:
-      - media-net
+        - media-net
     security_opt:
       - no-new-privileges:true
-    restart: unless-stopped
+    restart: "unless-stopped"
+
+  # readarr:
+  #   image: lscr.io/linuxserver/readarr:0.4.19-nightly
+  #   container_name: readarr
+  #   hostname: readarr
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/Amsterdam
+  #   volumes:
+  #     - /home/tim/config/readarr:/config
+  #     - /home/tim/nas/data:/data
+  #   expose:
+  #     - 8787
+  #   networks:
+  #     - media-net
+  #   security_opt:
+  #     - no-new-privileges:true
+  #   restart: unless-stopped
 
   lidarr:
     image: lscr.io/linuxserver/lidarr:3.1.3-nightly
