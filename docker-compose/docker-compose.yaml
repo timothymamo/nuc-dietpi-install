@@ -393,9 +393,7 @@ services:
       #Chaptarr__Postgres__CacheDb: #(default: chaptarr-cache)
     volumes:
       - /home/tim/config/chaptarr:/config
-      - /home/tim/nas/data/chaptarr/bookstest:/books
-      - /home/tim/nas/data/chaptarr/audiobooks:/audiobooks
-      - /home/tim/nas/data/chaptarr/downloads:/downloads
+      - /home/tim/nas/data:data
     expose:
       - 8789
     networks:
