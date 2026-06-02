@@ -42,6 +42,14 @@ services:
     volumes:
       - /home/tim/config/wireguard:/etc/wireguard
       - /lib/modules:/lib/modules:ro
+    environment:
+      - SERVICE_FQDN_WIREGUARDEASY_8000
+      - WG_HOST=${WG_HOST}
+      - WG_DEVICE=${WG_DEVICE}
+      - WG_ALLOWED_IPS=${WG_ALLOWED_IPS}
+      - WG_DEFAULT_DNS=${WG_DEFAULT_DNS}
+      - WG_PERSISTENT_KEEPALIVE=25
+      - UI_TRAFFIC_STATS=true
     ports:
       - "51820:51820/udp"
       - "127.0.0.1:51821:51821/tcp"
