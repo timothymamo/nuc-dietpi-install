@@ -153,7 +153,7 @@ services:
 
   esphome:
     container_name: esphome
-    image: ghcr.io/esphome/esphome:2026.5.1
+    image: ghcr.io/esphome/esphome:2026.5.3
     volumes:
       - /home/tim/config/esphome/config:/config
     environment:
