@@ -542,7 +542,7 @@ services:
       - pollInterval=2000
       - startPaused=false
       # - transcodegpuWorkers=1
-      - transcodecpuWorkers=2
+      - transcodecpuWorkers=1
       # - healthcheckgpuWorkers=1
       - healthcheckcpuWorkers=1
       # - NVIDIA_DRIVER_CAPABILITIES=all
