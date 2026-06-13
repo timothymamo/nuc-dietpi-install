@@ -503,7 +503,7 @@ services:
       - /home/tim/config/tdarr/server:/app/server
       - /home/tim/config/tdarr/configs:/app/configs
       - /home/tim/config/tdarr/logs:/app/logs
-      - /home/tim/nas/data:/data:/media
+      - /home/tim/nas/data:/media
       - /home/tim/nas/data/transcode_cache:/temp
 
     # devices:
@@ -551,7 +551,7 @@ services:
     volumes:
       - /home/tim/config/tdarr/configs:/app/configs
       - /home/tim/config/tdarr/logs:/app/logs
-      - /home/tim/nas/data:/data:/media
+      - /home/tim/nas/data:/media
       - /home/tim/nas/data/transcode_cache:/temp
 
     # devices:
