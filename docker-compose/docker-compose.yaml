@@ -582,6 +582,24 @@ services:
       - /tmp/transcoding:/tmp/transcoding
     network_mode: host
     restart: unless-stopped
+  
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:1.5.6
+    container_name: bazarr
+    hostname: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /home/tim/config/bazarr/config:/config
+      - /home/tim/nas/data//media/movies:/movies #optional
+      - /home/tim/nas/data/media/tv:/tv #optional
+    expose:
+      - 6767
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
 
   tautulli:
     image: ghcr.io/tautulli/tautulli:v2.17.1
