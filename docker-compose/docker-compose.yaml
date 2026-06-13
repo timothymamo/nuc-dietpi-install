@@ -473,8 +473,9 @@ services:
     restart: unless-stopped
 
   tdarr:
-    container_name: tdarr
     image: ghcr.io/haveagitgat/tdarr:2.78.01
+    container_name: tdarr
+    hostname: tdarr
     restart: unless-stopped
     network_mode: bridge
     expose:
