@@ -384,13 +384,6 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Amsterdam
-      #Chaptarr__Postgres__Host:
-      #Chaptarr__Postgres__Port: #(default: 5432)
-      #Chaptarr__Postgres__User:
-      #Chaptarr__Postgres__Password:
-      #Chaptarr__Postgres__MainDb: #(default: chaptarr-main)
-      #Chaptarr__Postgres__LogDb: #(default: chaptarr-log)
-      #Chaptarr__Postgres__CacheDb: #(default: chaptarr-cache)
     volumes:
       - /home/tim/config/chaptarr:/config
       - /home/tim/nas/data:/data
@@ -401,25 +394,6 @@ services:
     security_opt:
       - no-new-privileges:true
     restart: "unless-stopped"
-
-  # readarr:
-  #   image: lscr.io/linuxserver/readarr:0.4.19-nightly
-  #   container_name: readarr
-  #   hostname: readarr
-  #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Europe/Amsterdam
-  #   volumes:
-  #     - /home/tim/config/readarr:/config
-  #     - /home/tim/nas/data:/data
-  #   expose:
-  #     - 8787
-  #   networks:
-  #     - media-net
-  #   security_opt:
-  #     - no-new-privileges:true
-  #   restart: unless-stopped
 
   lidarr:
     image: lscr.io/linuxserver/lidarr:3.1.3-nightly
@@ -497,6 +471,96 @@ services:
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
+
+  tdarr:
+    container_name: tdarr
+    image: ghcr.io/haveagitgat/tdarr:2.78.01
+    restart: unless-stopped
+    network_mode: bridge
+    expose:
+      - 8265 # webUI port
+      - 8266 # server port
+    environment:
+      - TZ=Europe/Amsterdam
+      - PUID=1000
+      - PGID=1000
+      - UMASK_SET=002
+      - serverIP=192.168.1.100
+      - serverPort=8266
+      - webUIPort=8265
+      - internalNode=true
+      - inContainer=true
+      - ffmpegVersion=7
+      - nodeName=MyInternalNode
+      - auth=false
+      - openBrowser=true
+      - maxLogSizeMB=10
+      # - cronPluginUpdate=
+      # - NVIDIA_DRIVER_CAPABILITIES=all
+      # - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - /home/tim/config/tdarr/server:/app/server
+      - /home/tim/config/tdarr/configs:/app/configs
+      - /home/tim/config/tdarr/logs:/app/logs
+      - /home/tim/nas/data:/data:/media
+      - /home/tim/nas/data/transcode_cache:/temp
+
+    # devices:
+    #   - /dev/dri:/dev/dri
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #       - driver: nvidia
+    #         count: all
+    #         capabilities: [gpu]
+    
+
+# node example
+  tdarr-node:
+    container_name: tdarr-node
+    image: ghcr.io/haveagitgat/tdarr_node:2.78.01
+    restart: unless-stopped
+    network_mode: service:tdarr
+    environment:
+      - TZ=Europe/Amsterdam
+      - PUID=1000
+      - PGID=1000
+      - UMASK_SET=002
+      - nodeName=MyExternalNode
+      - serverIP=192.168.1.100
+      - serverPort=8266
+      - inContainer=true
+      - ffmpegVersion=7
+      - nodeType=mapped
+      - priority=-1
+      # - cronPluginUpdate=
+      # - apiKey=
+      - maxLogSizeMB=10
+      - pollInterval=2000
+      - startPaused=false
+      # - transcodegpuWorkers=1
+      - transcodecpuWorkers=2
+      # - healthcheckgpuWorkers=1
+      - healthcheckcpuWorkers=1
+      # - NVIDIA_DRIVER_CAPABILITIES=all
+      # - NVIDIA_VISIBLE_DEVICES=all
+
+    volumes:
+      - /home/tim/config/tdarr/configs:/app/configs
+      - /home/tim/config/tdarr/logs:/app/logs
+      - /home/tim/nas/data:/data:/media
+      - /home/tim/nas/data/transcode_cache:/temp
+
+    # devices:
+    #   - /dev/dri:/dev/dri
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #       - driver: nvidia
+    #         count: all
+    #         capabilities: [gpu]
 
   plex:
     image: linuxserver/plex:1.43.2
