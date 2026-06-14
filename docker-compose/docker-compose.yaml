@@ -330,7 +330,7 @@ services:
     restart: unless-stopped
 
   radarr-4k:
-    image: linuxserver/radarr:6.1.1
+    image: linuxserver/radarr:6.2.1
     container_name: radarr-4k
     hostname: radarr-4k
     depends_on:
@@ -353,7 +353,7 @@ services:
     restart: unless-stopped
 
   radarr:
-    image: linuxserver/radarr:6.1.1
+    image: linuxserver/radarr:6.2.1
     container_name: radarr
     hostname: radarr
     depends_on:
