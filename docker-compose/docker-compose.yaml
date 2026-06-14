@@ -122,7 +122,7 @@ services:
     restart: unless-stopped
 
   homeassistant:
-    image: ghcr.io/home-assistant/home-assistant:2026.6.1
+    image: ghcr.io/home-assistant/home-assistant:2026.6.3
     container_name: homeassistant
     hostname: homeassistant
     cap_add:
