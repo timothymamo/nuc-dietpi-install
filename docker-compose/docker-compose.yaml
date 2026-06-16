@@ -121,6 +121,9 @@ services:
       - traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://auth.timsdomain.duckdns.org
       - traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true
       - traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email
+      # Authelia's /api/verify response is tiny (just headers); cap it well
+      # above what it'd ever send to silence Traefik's DoS-risk warning.
+      - traefik.http.middlewares.authelia.forwardauth.maxResponseBodySize=1048576
       # The Authelia login portal itself, the `rd=` redirect target above.
       # Only the public domain here - mixing in a non-public `.home` host on
       # the same ACME-backed router makes Let's Encrypt reject the whole
