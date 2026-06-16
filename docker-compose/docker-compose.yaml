@@ -85,8 +85,14 @@ services:
       # Custom filter - not bundled in this image, see the file for why.
       - ./services/fail2ban/filter.d/traefik-botsearch.local:/data/filter.d/traefik-botsearch.local:ro
       - /home/tim/config/traefik-logs:/var/log/traefik:ro
-      # File-based backend for sshd.local - needs rsyslog's auth.log.
-      - /var/log:/var/log:ro
+      # Single file, not the whole /var/log dir - mounting both this and
+      # the traefik-logs subpath above under one read-only /var/log mount
+      # fails ("mkdir ... read-only file system") because Docker can't
+      # create the /var/log/traefik mountpoint inside an already-read-only
+      # parent mount. rsyslog must have already created this file on the
+      # host before the container starts, or this becomes the same
+      # file-vs-directory footgun as the original access.log issue.
+      - /var/log/auth.log:/var/log/auth.log:ro
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
