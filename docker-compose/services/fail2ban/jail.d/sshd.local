@@ -1,11 +1,11 @@
-# DietPi doesn't install rsyslog by default, so there's no flat
-# /var/log/auth.log - read SSH auth events straight from the journal instead.
-# If you do have rsyslog installed with a real auth.log, switch to:
-#   backend = auto
-#   logpath = /var/log/auth.log
+# File-based backend reading the real /var/log/auth.log, written by rsyslog
+# (installed via root-install-script.sh). crazymax/fail2ban is Alpine-based
+# and doesn't bundle the systemd Python bindings, so `backend = systemd`
+# isn't an option here - it crashed the whole server on every start.
 [sshd]
 enabled = true
-backend = systemd
+backend = auto
+logpath = /var/log/auth.log
 port = ssh
 maxretry = 5
 findtime = 10m

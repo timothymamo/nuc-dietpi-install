@@ -85,9 +85,8 @@ services:
       # Custom filter - not bundled in this image, see the file for why.
       - ./services/fail2ban/filter.d/traefik-botsearch.local:/data/filter.d/traefik-botsearch.local:ro
       - /home/tim/config/traefik-logs:/var/log/traefik:ro
-      # Needed for the systemd backend (sshd.local) to read journal auth events.
-      - /var/log/journal:/var/log/journal:ro
-      - /etc/machine-id:/etc/machine-id:ro
+      # File-based backend for sshd.local - needs rsyslog's auth.log.
+      - /var/log:/var/log:ro
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped

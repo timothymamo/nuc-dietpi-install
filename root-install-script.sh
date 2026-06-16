@@ -37,7 +37,12 @@ apt -y install \
   zsh \
   zsh-syntax-highlighting \
   zsh-autosuggestions \
-  fonts-firacode
+  fonts-firacode \
+  rsyslog
+
+# DietPi doesn't enable rsyslog by default - without it there's no
+# /var/log/auth.log, which fail2ban's sshd jail (see docker-compose/) needs.
+systemctl enable --now rsyslog
 
 # Install starship
 curl -sS https://starship.rs/install.sh | sh -s -- --yes --bin-dir /usr/bin
