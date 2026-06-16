@@ -26,8 +26,10 @@ services:
       # Common format (not json) and a real file on disk - fail2ban's
       # built-in Traefik filters are written against this log layout and
       # need to tail an actual file, not Docker's wrapped container logs.
+      # Lives in its own volume (not /etc/traefik) so fail2ban only ever
+      # needs read access to logs, never to acme.json's private keys.
       - --accesslog=true
-      - --accesslog.filepath=/etc/traefik/access.log
+      - --accesslog.filepath=/var/log/traefik/access.log
       - --metrics.prometheus=true
       - --metrics.prometheus.entrypoint=metrics
       - --metrics.prometheus.addEntryPointsLabels=true
@@ -44,6 +46,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /home/tim/config/traefik:/etc/traefik
+      - /home/tim/config/traefik-logs:/var/log/traefik
     ports:
       - 443:443
       - 80:80
@@ -77,7 +80,7 @@ services:
       - ./services/fail2ban/jail.d/sshd.local:/data/jail.d/sshd.local:ro
       - ./services/fail2ban/jail.d/traefik-auth.local:/data/jail.d/traefik-auth.local:ro
       - ./services/fail2ban/jail.d/traefik-botsearch.local:/data/jail.d/traefik-botsearch.local:ro
-      - /home/tim/config/traefik/access.log:/var/log/traefik/access.log:ro
+      - /home/tim/config/traefik-logs:/var/log/traefik:ro
       # Needed for the systemd backend (sshd.local) to read journal auth events.
       - /var/log/journal:/var/log/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
