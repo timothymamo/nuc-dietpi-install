@@ -66,7 +66,7 @@ services:
       # Traefik should route through, since it's attached to more than one.
       - traefik.enable=true
       - traefik.docker.network=proxy-net
-      - traefik.http.routers.wg-easy.rule=Host(`wg-easy.home`) || Host(`wg-easy.timsdomain.duckdns.org`)
+      - traefik.http.routers.wg-easy.rule=Host(`wg-easy.timsdomain.duckdns.org`)
       - traefik.http.routers.wg-easy.entrypoints=websecure
       - traefik.http.routers.wg-easy.tls=true
       - traefik.http.routers.wg-easy.tls.certresolver=duckdns
