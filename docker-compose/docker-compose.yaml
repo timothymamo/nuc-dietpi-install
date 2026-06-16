@@ -122,7 +122,10 @@ services:
       - traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true
       - traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email
       # The Authelia login portal itself, the `rd=` redirect target above.
-      - traefik.http.routers.authelia.rule=Host(`auth.home`) || Host(`auth.timsdomain.duckdns.org`)
+      # Only the public domain here - mixing in a non-public `.home` host on
+      # the same ACME-backed router makes Let's Encrypt reject the whole
+      # request (it won't issue for any identifier without a public TLD).
+      - traefik.http.routers.authelia.rule=Host(`auth.timsdomain.duckdns.org`)
       - traefik.http.routers.authelia.entrypoints=websecure
       - traefik.http.routers.authelia.tls=true
       - traefik.http.routers.authelia.tls.certresolver=duckdns
@@ -171,10 +174,17 @@ services:
       - traefik.enable=true
       - traefik.http.routers.transmission.rule=Host(`transmission.home`)
       - traefik.http.routers.transmission.entrypoints=web
+      # Two services are defined on this one container, so Traefik can't
+      # auto-link a router to "the" service - point each router at its
+      # service explicitly.
+      - traefik.http.routers.transmission.service=transmission
       - traefik.http.services.transmission.loadbalancer.server.url=http://gluetun:9091
       - traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.home`)
       - traefik.http.routers.sabnzbd.entrypoints=web
-      - traefik.http.services.sabnzbd.loadbalancer.server.url=http://gluetun:8480
+      - traefik.http.routers.sabnzbd.service=sabnzbd
+      # Internal container port (the left side of "8480:8080" is only the
+      # host-published port; other containers reach it via the right side).
+      - traefik.http.services.sabnzbd.loadbalancer.server.url=http://gluetun:8080
     restart: unless-stopped
 
   homeassistant:
@@ -826,10 +836,13 @@ services:
 
 networks:
   proxy-net:
+    name: proxy-net
     driver: bridge
   media-net:
+    name: media-net
     driver: bridge
   monitoring-net:
+    name: monitoring-net
     driver: bridge
   wg:
     driver: bridge
