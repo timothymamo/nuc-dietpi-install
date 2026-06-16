@@ -1,7 +1,7 @@
 services:
 
   web:
-    image: traefik:v3.3
+    image: traefik:v3.7.5
     container_name: web
     hostname: web
     security_opt:
@@ -32,7 +32,7 @@ services:
       # version by default; pin it to the NUC's actual Docker Engine API
       # version (`docker version --format '{{.Server.APIVersion}}'`) to
       # avoid the "client version too old" error.
-      - DOCKER_API_VERSION=1.54
+      # - DOCKER_API_VERSION=1.54
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /home/tim/config/traefik:/etc/traefik
