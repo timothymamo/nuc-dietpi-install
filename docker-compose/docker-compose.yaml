@@ -28,6 +28,11 @@ services:
     environment:
       - TZ=Europe/Amsterdam
       - DUCKDNS_TOKEN=${DUCKDNS_TOKEN}
+      # Traefik's bundled Docker client negotiates down to an old API
+      # version by default; pin it to the NUC's actual Docker Engine API
+      # version (`docker version --format '{{.Server.APIVersion}}'`) to
+      # avoid the "client version too old" error.
+      - DOCKER_API_VERSION=1.54
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /home/tim/config/traefik:/etc/traefik
