@@ -1,0 +1,9 @@
+# Bans IPs probing for common vulnerability-scan paths (wp-login.php, .env,
+# phpMyAdmin, etc.) seen in Traefik's access log.
+[traefik-botsearch]
+enabled = true
+port = http,https
+logpath = /var/log/traefik/access.log
+maxretry = 2
+findtime = 10m
+bantime = 1d

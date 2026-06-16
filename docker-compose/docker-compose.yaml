@@ -23,8 +23,11 @@ services:
       # Dashboard is convenient while migrating - lock it down (or remove) once everything is moved over.
       - --api.dashboard=true
       - --log.level=INFO
+      # Common format (not json) and a real file on disk - fail2ban's
+      # built-in Traefik filters are written against this log layout and
+      # need to tail an actual file, not Docker's wrapped container logs.
       - --accesslog=true
-      - --accesslog.format=json
+      - --accesslog.filepath=/etc/traefik/access.log
       - --metrics.prometheus=true
       - --metrics.prometheus.entrypoint=metrics
       - --metrics.prometheus.addEntryPointsLabels=true
@@ -52,6 +55,34 @@ services:
     # (homeassistant, esphome, plex), which it can't auto-discover.
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  fail2ban:
+    image: crazymax/fail2ban:latest
+    container_name: fail2ban
+    hostname: fail2ban
+    # Bans have to apply to the host's real network stack, not a container
+    # bridge - needs host networking and the caps to drive iptables directly.
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - TZ=Europe/Amsterdam
+      - F2B_LOG_TARGET=STDOUT
+      - F2B_LOG_LEVEL=INFO
+      - F2B_DB_PURGE_AGE=30d
+    volumes:
+      - /home/tim/config/fail2ban:/data
+      - ./services/fail2ban/jail.d/sshd.local:/data/jail.d/sshd.local:ro
+      - ./services/fail2ban/jail.d/traefik-auth.local:/data/jail.d/traefik-auth.local:ro
+      - ./services/fail2ban/jail.d/traefik-botsearch.local:/data/jail.d/traefik-botsearch.local:ro
+      - /home/tim/config/traefik/access.log:/var/log/traefik/access.log:ro
+      # Needed for the systemd backend (sshd.local) to read journal auth events.
+      - /var/log/journal:/var/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
   wg-easy:

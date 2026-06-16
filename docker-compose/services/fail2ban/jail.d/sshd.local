@@ -1,0 +1,12 @@
+# DietPi doesn't install rsyslog by default, so there's no flat
+# /var/log/auth.log - read SSH auth events straight from the journal instead.
+# If you do have rsyslog installed with a real auth.log, switch to:
+#   backend = auto
+#   logpath = /var/log/auth.log
+[sshd]
+enabled = true
+backend = systemd
+port = ssh
+maxretry = 5
+findtime = 10m
+bantime = 1h

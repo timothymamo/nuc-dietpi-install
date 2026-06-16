@@ -1,0 +1,9 @@
+# Bans IPs hammering Authelia's forward-auth (repeated 401s through Traefik) -
+# e.g. someone brute-forcing the wg-easy or authelia login.
+[traefik-auth]
+enabled = true
+port = http,https
+logpath = /var/log/traefik/access.log
+maxretry = 5
+findtime = 10m
+bantime = 1h
