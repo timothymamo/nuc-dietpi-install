@@ -82,6 +82,8 @@ services:
       - ./services/fail2ban/jail.d/sshd.local:/data/jail.d/sshd.local:ro
       - ./services/fail2ban/jail.d/traefik-auth.local:/data/jail.d/traefik-auth.local:ro
       - ./services/fail2ban/jail.d/traefik-botsearch.local:/data/jail.d/traefik-botsearch.local:ro
+      # Custom filter - not bundled in this image, see the file for why.
+      - ./services/fail2ban/filter.d/traefik-botsearch.local:/data/filter.d/traefik-botsearch.local:ro
       - /home/tim/config/traefik-logs:/var/log/traefik:ro
       # Needed for the systemd backend (sshd.local) to read journal auth events.
       - /var/log/journal:/var/log/journal:ro

@@ -1,0 +1,7 @@
+# Custom filter - the bundled crazymax/fail2ban image doesn't ship a
+# traefik-botsearch filter (only traefik-auth), so this matches it by hand
+# against Traefik's default common-format access log line:
+#   <HOST> - - [16/Jun/2026:20:18:35 +0200] "GET /wp-login.php HTTP/1.1" 404 ...
+[Definition]
+failregex = ^<HOST> -.*"(?:GET|POST|HEAD) (?:/\.env|/\.git/\S*|/wp-login\.php|/wp-admin\S*|/wp-config\.php|/xmlrpc\.php|/phpmyadmin\S*|/administrator\S*|/vendor/\S*|/\.aws/\S*|/config\.php|/cgi-bin/\S*|/\.ssh/\S*|/\.docker/\S*) HTTP/\d\.\d" (?:404|403)
+ignoreregex =
