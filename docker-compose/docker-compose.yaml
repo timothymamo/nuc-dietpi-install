@@ -401,10 +401,7 @@ services:
       - /:/hostfs:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./services/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
-      # Whole directory, not the single log file - same lesson as Traefik's
-      # access.log: bind-mounting a file path that doesn't exist yet makes
-      # Docker create a directory there instead.
-      - /home/tim/config/fail2ban:/var/log/fail2ban:ro
+
     networks:
       - monitoring-net
     restart: unless-stopped
