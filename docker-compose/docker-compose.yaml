@@ -113,9 +113,10 @@ services:
     volumes:
       # Read the fail2ban database to display ban history
       - /home/tim/config/fail2ban:/data:ro
-      # Same host path as fail2ban's /var/run/fail2ban mount above — this is
-      # how the socket created inside the fail2ban container is shared here.
-      - /home/tim/config/fail2ban-run/fail2ban.sock:/var/run/fail2ban/fail2ban.sock
+      # Same host directory as fail2ban's /var/run/fail2ban mount — Docker
+      # can't bind-mount a socket file that doesn't exist yet, so mount the
+      # whole directory and let fail2ban create the socket inside it.
+      - /home/tim/config/fail2ban-run:/var/run/fail2ban
     expose:
       - 8080
     networks:
