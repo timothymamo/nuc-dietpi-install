@@ -97,6 +97,34 @@ services:
       - no-new-privileges:true
     restart: unless-stopped
 
+  fail2ban-ui:
+    image: swissmakers/fail2ban-ui:latest
+    container_name: fail2ban-ui
+    hostname: fail2ban-ui
+    depends_on:
+      - fail2ban
+      - web
+    environment:
+      - TZ=Europe/Amsterdam
+    volumes:
+      # Read the fail2ban database to display ban history
+      - /home/tim/config/fail2ban:/data:ro
+      # Socket lets the UI unban IPs; fail2ban runs network_mode:host so
+      # the socket lives on the host's /var/run/fail2ban, not in a volume.
+      - /var/run/fail2ban/fail2ban.sock:/var/run/fail2ban/fail2ban.sock
+    expose:
+      - 8080
+    networks:
+      - proxy-net
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.fail2ban-ui.rule=Host(`fail2ban.home`)
+      - traefik.http.routers.fail2ban-ui.entrypoints=web
+      - traefik.http.services.fail2ban-ui.loadbalancer.server.port=8080
+    restart: unless-stopped
+
   wg-easy:
     image: ghcr.io/wg-easy/wg-easy:15.3.0
     container_name: wg-easy
