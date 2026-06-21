@@ -832,7 +832,7 @@ services:
     restart: unless-stopped
 
   tautulli:
-    image: ghcr.io/tautulli/tautulli:v2.17.1
+    image: ghcr.io/tautulli/tautulli:v2.17.2
     container_name: tautulli
     hostname: tautulli
     depends_on:
