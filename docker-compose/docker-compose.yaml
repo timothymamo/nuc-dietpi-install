@@ -458,7 +458,7 @@ services:
     restart: unless-stopped
 
   sonarr-4k:
-    image: linuxserver/sonarr:4.0.17
+    image: linuxserver/sonarr:4.0.19
     container_name: sonarr-4k
     hostname: sonarr-4k
     depends_on:
@@ -486,7 +486,7 @@ services:
     restart: unless-stopped
 
   sonarr:
-    image: linuxserver/sonarr:4.0.17
+    image: linuxserver/sonarr:4.0.19
     container_name: sonarr
     hostname: sonarr
     depends_on:
