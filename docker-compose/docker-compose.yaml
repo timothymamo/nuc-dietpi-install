@@ -310,7 +310,7 @@ services:
 
   esphome:
     container_name: esphome
-    image: ghcr.io/esphome/esphome:2026.6.2
+    image: ghcr.io/esphome/esphome:2026.6.4
     volumes:
       - /home/tim/config/esphome/config:/config
     environment:
