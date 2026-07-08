@@ -156,6 +156,7 @@ services:
     environment:
       - SERVICE_FQDN_WIREGUARDEASY_8000
       - WG_HOST=${WG_HOST}
+      # Run this in the container to get which interface: `ip route get 8.8.8.8 | awk '{print $5}'`
 #      - WG_DEVICE=${WG_DEVICE}
       - WG_ALLOWED_IPS=${WG_ALLOWED_IPS}
       - WG_DEFAULT_DNS=${WG_DEFAULT_DNS}
