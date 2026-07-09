@@ -808,7 +808,7 @@ services:
     restart: unless-stopped
   
   bazarr:
-    image: lscr.io/linuxserver/bazarr:1.6.0
+    image: ghcr.io/lavx/bazarr:v2.5.2
     container_name: bazarr
     hostname: bazarr
     environment:
