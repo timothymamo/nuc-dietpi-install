@@ -1,7 +1,7 @@
 services:
 
   web:
-    image: traefik:v3.7.6
+    image: traefik:v3.7.10
     container_name: web
     hostname: web
     security_opt:
