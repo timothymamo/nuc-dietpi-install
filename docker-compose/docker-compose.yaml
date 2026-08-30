@@ -813,7 +813,7 @@ services:
     restart: unless-stopped
   
   bazarr:
-    image: ghcr.io/lavx/bazarr:2.5.2
+    image: ghcr.io/lavx/bazarr:2.6.1
     container_name: bazarr
     hostname: bazarr
     environment:
