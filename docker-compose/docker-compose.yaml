@@ -61,7 +61,7 @@ services:
     restart: unless-stopped
 
   fail2ban:
-    image: crazymax/fail2ban:latest
+    image: crazymax/fail2ban:1.1.1
     container_name: fail2ban
     hostname: fail2ban
     # Bans have to apply to the host's real network stack, not a container
@@ -102,7 +102,7 @@ services:
     restart: unless-stopped
 
   fail2ban-ui:
-    image: swissmakers/fail2ban-ui:latest
+    image: swissmakers/fail2ban-ui:v1.5.4
     container_name: fail2ban-ui
     hostname: fail2ban-ui
     depends_on:
@@ -573,7 +573,7 @@ services:
     restart: unless-stopped
 
   chaptarr:
-    image: robertlordhood/chaptarr:latest
+    image: robertlordhood/chaptarr:0.9.958
     container_name: chaptarr
     hostname: chaptarr
     environment:
