@@ -248,28 +248,18 @@ services:
       - 51413:51413 # Transmission
       - 51413:51413/udp # Transmission
       - 8090:8090
-      - 8480:8080 # SabNZB
     networks:
       - media-net
     labels:
-      # transmission & sabnzbd use network_mode: service:gluetun, so they have
-      # no network identity of their own for Traefik's Docker provider to
-      # discover - point the loadbalancer straight at gluetun's internal
-      # ports instead (the same ports gluetun republishes above).
+      # transmission uses network_mode: service:gluetun, so it has no network
+      # identity of its own for Traefik's Docker provider to discover - point
+      # the loadbalancer straight at gluetun's internal port instead (the same
+      # port gluetun republishes above).
       - traefik.enable=true
       - traefik.http.routers.transmission.rule=Host(`transmission.home`)
       - traefik.http.routers.transmission.entrypoints=web
-      # Two services are defined on this one container, so Traefik can't
-      # auto-link a router to "the" service - point each router at its
-      # service explicitly.
       - traefik.http.routers.transmission.service=transmission
       - traefik.http.services.transmission.loadbalancer.server.url=http://gluetun:9091
-      - traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.home`)
-      - traefik.http.routers.sabnzbd.entrypoints=web
-      - traefik.http.routers.sabnzbd.service=sabnzbd
-      # Internal container port (the left side of "8480:8080" is only the
-      # host-published port; other containers reach it via the right side).
-      - traefik.http.services.sabnzbd.loadbalancer.server.url=http://gluetun:8080
     restart: unless-stopped
 
   homeassistant:
@@ -448,6 +438,7 @@ services:
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:5.1.3
     container_name: sabnzbd
+    hostname: sabnzbd
     environment:
       - PUID=1000
       - PGID=1000
@@ -455,7 +446,17 @@ services:
     volumes:
       - /home/tim/config/sabnzbd:/config
       - /home/tim/nas/data/usenet:/data/usenet
-    network_mode: "service:gluetun"
+    expose:
+      - 8080
+    networks:
+      - media-net
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.home`)
+      - traefik.http.routers.sabnzbd.entrypoints=web
+      - traefik.http.services.sabnzbd.loadbalancer.server.port=8080
     restart: unless-stopped
 
   sonarr-4k:
