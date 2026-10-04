@@ -574,7 +574,7 @@ services:
     restart: unless-stopped
 
   chaptarr:
-    image: robertlordhood/chaptarr:0.9.958
+    image: robertlordhood/chaptarr:0.9.965
     container_name: chaptarr
     hostname: chaptarr
     environment:
