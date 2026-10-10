@@ -402,9 +402,9 @@ services:
     container_name: grafana
     hostname: grafana
     environment:
-      - GF_DATE_FORMATS_FULL_DATE='DD-MM-YYYY HH:mm:ss'
-      - GF_DATE_FORMATS_INTERVAL_DAY='DD-MM'
-      - GF_DATE_FORMATS_INTERVAL_HOUR='DD-MM HH:mm'
+      - GF_DATE_FORMATS_FULL_DATE=DD/MM/YYYY HH:mm:ss
+      - GF_DATE_FORMATS_INTERVAL_DAY=DD/MM
+      - GF_DATE_FORMATS_INTERVAL_HOUR=DD/MM HH:mm
     user: "472:472"
     depends_on:
       - web
