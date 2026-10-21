@@ -697,7 +697,7 @@ services:
     restart: unless-stopped
 
   plex:
-    image: linuxserver/plex:1.43.4
+    image: linuxserver/plex:1.43.5
     container_name: plex
     hostname: plex
     depends_on:
