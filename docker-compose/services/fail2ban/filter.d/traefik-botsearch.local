@@ -1,4 +1,4 @@
-# Custom filter - the bundled crazymax/fail2ban image doesn't ship a
+# Custom filter - the linuxserver/fail2ban image doesn't ship a
 # traefik-botsearch filter (only traefik-auth), so this matches it by hand
 # against Traefik's default common-format access log line:
 #   <HOST> - - [16/Jun/2026:20:18:35 +0200] "GET /wp-login.php HTTP/1.1" 404 ...

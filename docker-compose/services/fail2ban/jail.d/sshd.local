@@ -1,5 +1,5 @@
 # File-based backend reading the real /var/log/auth.log, written by rsyslog
-# (installed via root-install-script.sh). crazymax/fail2ban is Alpine-based
+# (installed via root-install-script.sh). linuxserver/fail2ban is Alpine-based
 # and doesn't bundle the systemd Python bindings, so `backend = systemd`
 # isn't an option here - it crashed the whole server on every start.
 [sshd]

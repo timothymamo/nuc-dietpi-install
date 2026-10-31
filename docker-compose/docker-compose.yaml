@@ -75,10 +75,14 @@ services:
     environment:
       - TZ=Europe/Amsterdam
     volumes:
-      # Live config, shared read/write with fail2ban-ui. Seed jail.d/ and
-      # filter.d/ from ./services/fail2ban - changes there aren't picked up
-      # automatically, as the UI needs to be able to edit these files.
+      # Live config, shared read/write with fail2ban-ui.
       - /home/tim/config/fail2ban-lsio:/config
+      # Copied into the live config on every start, see the script for why.
+      # UI edits to these jails last until the next restart - make permanent
+      # changes in ./services/fail2ban.
+      - ./services/fail2ban/seed-config.sh:/custom-cont-init.d/seed-config.sh:ro
+      - ./services/fail2ban/jail.d:/seed/jail.d:ro
+      - ./services/fail2ban/filter.d:/seed/filter.d:ro
       - /home/tim/config/traefik-logs:/var/log/traefik:ro
       # Single file, not the whole /var/log dir - mounting both this and
       # the traefik-logs subpath above under one read-only /var/log mount
