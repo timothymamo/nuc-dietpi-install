@@ -61,7 +61,9 @@ services:
     restart: unless-stopped
 
   fail2ban:
-    image: crazymax/fail2ban:1.1.1
+    # linuxserver image, as fail2ban-ui's all-in-one example uses: its config
+    # lives in a plain host directory that fail2ban-ui can share and edit.
+    image: lscr.io/linuxserver/fail2ban:1.1.0-r2-ls48
     container_name: fail2ban
     hostname: fail2ban
     # Bans have to apply to the host's real network stack, not a container
@@ -72,18 +74,11 @@ services:
       - NET_RAW
     environment:
       - TZ=Europe/Amsterdam
-      # A real file (inside the already-persisted /data) instead of stdout,
-      # so Telegraf can tail it and feed ban/unban events into Grafana.
-      - F2B_LOG_TARGET=/data/fail2ban.log
-      - F2B_LOG_LEVEL=INFO
-      - F2B_DB_PURGE_AGE=30d
     volumes:
-      - /home/tim/config/fail2ban:/data
-      - ./services/fail2ban/jail.d/sshd.local:/data/jail.d/sshd.local:ro
-      - ./services/fail2ban/jail.d/traefik-auth.local:/data/jail.d/traefik-auth.local:ro
-      - ./services/fail2ban/jail.d/traefik-botsearch.local:/data/jail.d/traefik-botsearch.local:ro
-      # Custom filter - not bundled in this image, see the file for why.
-      - ./services/fail2ban/filter.d/traefik-botsearch.local:/data/filter.d/traefik-botsearch.local:ro
+      # Live config, shared read/write with fail2ban-ui. Seed jail.d/ and
+      # filter.d/ from ./services/fail2ban - changes there aren't picked up
+      # automatically, as the UI needs to be able to edit these files.
+      - /home/tim/config/fail2ban-lsio:/config
       - /home/tim/config/traefik-logs:/var/log/traefik:ro
       # Single file, not the whole /var/log dir - mounting both this and
       # the traefik-logs subpath above under one read-only /var/log mount
@@ -97,8 +92,6 @@ services:
       # The socket is created inside the container; without this mount it
       # never appears on the host and fail2ban-ui's bind mount points at nothing.
       - /home/tim/config/fail2ban-run:/var/run/fail2ban
-    security_opt:
-      - no-new-privileges:true
     restart: unless-stopped
 
   fail2ban-ui:
@@ -110,19 +103,26 @@ services:
       - web
     environment:
       - TZ=Europe/Amsterdam
+      # fail2ban runs on the host network, so its ban/unban callbacks reach
+      # this container through the loopback port published below.
+      - CALLBACK_URL=http://127.0.0.1:8095
     volumes:
-      # Read the fail2ban database to display ban history
-      - /home/tim/config/fail2ban:/data:ro
+      # UI database and settings
+      - /home/tim/config/fail2ban-ui:/config
+      # fail2ban's live config, so the UI can manage jail.local and its
+      # callback action.
+      - /home/tim/config/fail2ban-lsio/fail2ban:/etc/fail2ban
       # Same host directory as fail2ban's /var/run/fail2ban mount — Docker
       # can't bind-mount a socket file that doesn't exist yet, so mount the
       # whole directory and let fail2ban create the socket inside it.
       - /home/tim/config/fail2ban-run:/var/run/fail2ban
-    expose:
-      - 8080
+      # Same log paths as fail2ban, for the UI's log path tests on jails.
+      - /home/tim/config/traefik-logs:/var/log/traefik:ro
+      - /var/log/auth.log:/var/log/auth.log:ro
+    ports:
+      - 127.0.0.1:8095:8080
     networks:
       - proxy-net
-    security_opt:
-      - no-new-privileges:true
     labels:
       - traefik.enable=true
       - traefik.http.routers.fail2ban-ui.rule=Host(`fail2ban.home`)
