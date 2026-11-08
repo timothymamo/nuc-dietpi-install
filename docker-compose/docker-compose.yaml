@@ -780,7 +780,7 @@ services:
     restart: unless-stopped
 
   notifiarr:
-    image: golift/notifiarr:v0.9.7
+    image: golift/notifiarr:v0.10.0
     container_name: notifiarr
     hostname: notifiarr
     environment:
